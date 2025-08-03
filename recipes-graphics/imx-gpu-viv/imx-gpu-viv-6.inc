@@ -323,6 +323,8 @@ FILES:libegl-imx = "${libdir}/libEGL${REALSOLIBS} ${libdir}/libEGL${SOLIBS} "
 FILES:libegl-imx-dev = "${includedir}/EGL ${includedir}/KHR ${libdir}/pkgconfig/egl.pc"
 # libEGL.so is used by some demo apps from Freescale
 INSANE_SKIP:libegl-imx += "dev-so"
+RPROVIDES:libegl-imx = "libegl libegl1"
+RPROVIDES:libegl-imx-dev = "libegl-dev libegl1-dev"
 
 FILES:libgal-imx = "${libdir}/libGAL${SOLIBS} ${libdir}/libGAL_egl${SOLIBS}"
 RDEPENDS:libgal-imx += "${@bb.utils.contains('PACKAGECONFIG', 'valgrind', 'valgrind', '', d)}"
