@@ -1,5 +1,6 @@
 PACKAGECONFIG:append:imx-nxp-bsp = " ${PACKAGECONFIG_LIBDECOR}"
 PACKAGECONFIG_LIBDECOR ??= "libdecor"
+PACKAGECONFIG_LIBDECOR:mingw32 = ""
 
 # what vivante driver does libsdl2 mean? Anyway it fails with missing functions as
 # VIVANTE_Create VIVANTE_GLES_GetProcAddress VIVANTE_GLES_UnloadLibrary ...
