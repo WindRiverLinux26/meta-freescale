@@ -4,6 +4,8 @@
 
 require recipes-bsp/u-boot/u-boot.inc
 require u-boot-imx-common_${PV}.inc
+HOMEPAGE = "https://github.com/nxp-imx/uboot-imx"
+SECTION = "bootloaders"
 
 PROVIDES += "u-boot u-boot-mfgtool"
 

@@ -31,8 +31,8 @@ inherit meson pkgconfig useradd
 #
 require ${THISDIR}/required-distro-features.inc
 
-DEPENDS = "libxkbcommon gdk-pixbuf pixman cairo glib-2.0"
-DEPENDS += "wayland wayland-protocols libinput virtual/egl pango wayland-native"
+DEPENDS = "cairo gdk-pixbuf glib-2.0 libinput libxkbcommon pango pixman \
+           virtual/egl wayland wayland-native wayland-protocols"
 
 LDFLAGS += "${@bb.utils.contains('DISTRO_FEATURES', 'lto', '-Wl,-z,undefs', '', d)}"
 
@@ -40,16 +40,17 @@ WESTON_MAJOR_VERSION = "${@'.'.join(d.getVar('PV').split('.')[0:1])}"
 
 EXTRA_OEMESON += "-Dpipewire=false"
 
-PACKAGECONFIG ??= "${@bb.utils.contains('DISTRO_FEATURES', 'wayland', 'kms wayland egl clients', '', d)} \
-                   ${@bb.utils.contains('DISTRO_FEATURES', 'x11 wayland', 'xwayland', '', d)} \
-                   ${@bb.utils.filter('DISTRO_FEATURES', 'systemd x11', d)} \
-                   ${@bb.utils.contains_any('DISTRO_FEATURES', 'wayland x11', '', 'headless', d)} \
-                   ${@oe.utils.conditional('VIRTUAL-RUNTIME_init_manager', 'sysvinit', 'launcher-libseat', '', d)} \
-                   image-jpeg \
-                   screenshare \
-                   shell-desktop \
-                   shell-fullscreen \
-                   shell-ivi"
+PACKAGECONFIG ??= "\
+    ${@bb.utils.contains('DISTRO_FEATURES', 'wayland', 'kms wayland egl clients', '', d)} \
+    ${@bb.utils.contains('DISTRO_FEATURES', 'x11 wayland', 'xwayland', '', d)} \
+    ${@bb.utils.filter('DISTRO_FEATURES', 'systemd x11', d)} \
+    ${@bb.utils.contains_any('DISTRO_FEATURES', 'wayland x11', '', 'headless', d)} \
+    ${@oe.utils.conditional('VIRTUAL-RUNTIME_init_manager', 'sysvinit', 'launcher-libseat', '', d)} \
+    image-jpeg \
+    screenshare \
+    shell-desktop \
+    shell-fullscreen \
+    shell-ivi"
 
 # Can be 'damage', 'im', 'egl', 'shm', 'touch', 'dmabuf-feedback', 'dmabuf-v4l', 'dmabuf-egl' or 'all'
 SIMPLECLIENTS ?= "all"
@@ -103,42 +104,51 @@ PACKAGECONFIG[image-jpeg] = "-Dimage-jpeg=true,-Dimage-jpeg=false, jpeg"
 PACKAGECONFIG[launcher-libseat] = "-Dlauncher-libseat=true,-Dlauncher-libseat=false,seatd"
 
 do_install:append() {
-	# Weston doesn't need the .la files to load modules, so wipe them
-	rm -f ${D}/${libdir}/libweston-${WESTON_MAJOR_VERSION}/*.la
+    # Weston doesn't need the .la files to load modules, so wipe them
+    rm -f ${D}/${libdir}/libweston-${WESTON_MAJOR_VERSION}/*.la
 
-	# If X11, ship a desktop file to launch it
-	if [ "${@bb.utils.filter('DISTRO_FEATURES', 'x11', d)}" ]; then
-		install -d ${D}${datadir}/applications
-		install ${UNPACKDIR}/weston.desktop ${D}${datadir}/applications
+    # If X11, ship a desktop file to launch it
+    if [ "${@bb.utils.filter('DISTRO_FEATURES', 'x11', d)}" ]; then
+        install -d ${D}${datadir}/applications
+        install ${UNPACKDIR}/weston.desktop ${D}${datadir}/applications
 
-		install -d ${D}${datadir}/icons/hicolor/48x48/apps
-		install ${UNPACKDIR}/weston.png ${D}${datadir}/icons/hicolor/48x48/apps
-	fi
+        install -d ${D}${datadir}/icons/hicolor/48x48/apps
+        install ${UNPACKDIR}/weston.png ${D}${datadir}/icons/hicolor/48x48/apps
+    fi
 
-	if [ "${@bb.utils.contains('PACKAGECONFIG', 'xwayland', 'yes', 'no', d)}" = "yes" ]; then
-		install -Dm 644 ${UNPACKDIR}/xwayland.weston-start ${D}${datadir}/weston-start/xwayland
-	fi
+    if [ "${@bb.utils.contains('PACKAGECONFIG', 'xwayland', 'yes', 'no', d)}" = "yes" ]; then
+        install -Dm 644 ${UNPACKDIR}/xwayland.weston-start ${D}${datadir}/weston-start/xwayland
+    fi
 
-	if [ "${@bb.utils.contains('PACKAGECONFIG', 'systemd', 'yes', 'no', d)}" = "yes" ]; then
-		install -Dm 644 ${UNPACKDIR}/systemd-notify.weston-start ${D}${datadir}/weston-start/systemd-notify
-	fi
+    if [ "${@bb.utils.contains('PACKAGECONFIG', 'systemd', 'yes', 'no', d)}" = "yes" ]; then
+        install -Dm 644 ${UNPACKDIR}/systemd-notify.weston-start ${D}${datadir}/weston-start/systemd-notify
+    fi
 
-	if [ "${@bb.utils.contains('PACKAGECONFIG', 'launch', 'yes', 'no', d)}" = "yes" ]; then
-		chmod u+s ${D}${bindir}/weston-launch
-	fi
+    if [ "${@bb.utils.contains('PACKAGECONFIG', 'launch', 'yes', 'no', d)}" = "yes" ]; then
+        chmod u+s ${D}${bindir}/weston-launch
+    fi
 }
 
-PACKAGES += "${@bb.utils.contains('PACKAGECONFIG', 'xwayland', '${PN}-xwayland', '', d)} \
-             libweston-${WESTON_MAJOR_VERSION} ${PN}-examples"
+PACKAGES += "${@bb.utils.contains('PACKAGECONFIG', 'xwayland', '${PN}-xwayland', '', d)}"
+PACKAGES += "libweston-${WESTON_MAJOR_VERSION} ${PN}-examples"
 
 FILES:${PN}-dev += "${libdir}/${BPN}/libexec_weston.so"
+# Main package is curated to weston's own binaries, config and plugins; the
+# shared libraries are split out into the libweston-${WESTON_MAJOR_VERSION} package.
+# nooelint: oelint.var.filesoverride
 FILES:${PN} = "${bindir}/weston ${bindir}/weston-terminal ${bindir}/weston-info ${bindir}/weston-launch ${bindir}/wcap-decode ${libexecdir} ${libdir}/${BPN}/*.so* ${datadir}"
 
+# libweston-*, -examples and -xwayland are split packages with no default FILES,
+# so '=' is a complete definition. Kept byte-identical to oe-core weston to avoid
+# fork drift; suppress the append-preference warning.
+# nooelint: oelint.var.filesoverride
 FILES:libweston-${WESTON_MAJOR_VERSION} = "${libdir}/lib*${SOLIBS} ${libdir}/libweston-${WESTON_MAJOR_VERSION}/*.so"
 SUMMARY:libweston-${WESTON_MAJOR_VERSION} = "Helper library for implementing 'wayland window managers'."
 
+# nooelint: oelint.var.filesoverride
 FILES:${PN}-examples = "${bindir}/*"
 
+# nooelint: oelint.var.filesoverride
 FILES:${PN}-xwayland = "${libdir}/libweston-${WESTON_MAJOR_VERSION}/xwayland.so"
 RDEPENDS:${PN}-xwayland += "xwayland"
 
@@ -156,24 +166,25 @@ GROUPADD_PARAM:${PN} = "--system weston-launch"
 SUMMARY = "Weston, a Wayland compositor, i.MX fork"
 
 LIC_FILES_CHKSUM:remove = "file://COPYING;md5=d79ee9e66bb0f95d3386a7acae780b70"
-LIC_FILES_CHKSUM:append = "file://LICENSE;md5=d79ee9e66bb0f95d3386a7acae780b70"
+LIC_FILES_CHKSUM:append = " file://LICENSE;md5=d79ee9e66bb0f95d3386a7acae780b70"
 
 DEFAULT_PREFERENCE = "-1"
 
 SRC_URI:remove = "https://gitlab.freedesktop.org/wayland/weston/-/releases/${PV}/downloads/${BPN}-${PV}.tar.xz"
-SRC_URI:prepend = "git://github.com/nxp-imx/weston-imx.git;protocol=https;branch=${SRCBRANCH} "
+SRC_URI:prepend = "${WESTON_SRC};branch=${SRCBRANCH} "
+WESTON_SRC ?= "git://github.com/nxp-imx/weston-imx.git;protocol=https"
 SRC_URI += "file://0001-Revert-protocol-no-found-wayland-scanner-with-Yocto-.patch \
             file://0001-g2d-renderer.c-Include-sys-stat.h.patch"
 SRCBRANCH = "weston-imx-10.0.5"
-SRCREV = "7129417ae04de57f9596ccf27f74ef967660a64f"
+SRCREV = "5223a3c86177709d25f86a96622c0829da955a0e"
 
 # Disable OpenGL for parts with GPU support for 2D but not 3D
-REQUIRED_DISTRO_FEATURES          = "opengl"
+REQUIRED_DISTRO_FEATURES = "opengl"
 REQUIRED_DISTRO_FEATURES:imxgpu2d = ""
 REQUIRED_DISTRO_FEATURES:imxgpu3d = "opengl"
-PACKAGECONFIG_OPENGL              = "opengl"
-PACKAGECONFIG_OPENGL:imxgpu2d     = ""
-PACKAGECONFIG_OPENGL:imxgpu3d     = "opengl"
+PACKAGECONFIG_OPENGL = "opengl"
+PACKAGECONFIG_OPENGL:imxgpu2d = ""
+PACKAGECONFIG_OPENGL:imxgpu3d = "opengl"
 
 PACKAGECONFIG_IMX_REMOVALS ?= "wayland x11"
 PACKAGECONFIG:remove = "${PACKAGECONFIG_IMX_REMOVALS}"
@@ -181,7 +192,7 @@ PACKAGECONFIG:append = " ${@bb.utils.filter('DISTRO_FEATURES', '${PACKAGECONFIG_
 
 PACKAGECONFIG:remove:imxfbdev = "kms"
 PACKAGECONFIG:append:imxfbdev = " fbdev clients"
-PACKAGECONFIG:append:imxgpu   = " imxgpu"
+PACKAGECONFIG:append:imxgpu = " imxgpu"
 PACKAGECONFIG:append:imxgpu2d = " imxg2d"
 
 SIMPLECLIENTS:imxfbdev = "damage,im,egl,shm,touch,dmabuf-v4l"

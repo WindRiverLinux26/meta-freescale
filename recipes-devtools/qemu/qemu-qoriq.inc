@@ -1,9 +1,10 @@
 SUMMARY = "Fast open source processor emulator"
 DESCRIPTION = "QEMU is a hosted virtual machine monitor: it emulates the \
-machine's processor through dynamic binary translation and provides a set \
-of different hardware and device models for the machine, enabling it to run \
-a variety of guest operating systems"
+               machine's processor through dynamic binary translation and provides a set \
+               of different hardware and device models for the machine, enabling it to run \
+               a variety of guest operating systems"
 HOMEPAGE = "http://qemu.org"
+SECTION = "devel"
 LICENSE = "GPL-2.0-only & LGPL-2.1-only"
 
 RDEPENDS:${PN}-ptest = "bash make"
@@ -14,36 +15,7 @@ inherit pkgconfig ptest
 LIC_FILES_CHKSUM = "file://COPYING;md5=441c28d2cf86e15a37fa47e15a72fbac \
                     file://COPYING.LIB;endline=24;md5=8c5efda6cf1e1b03dcfd0e6c0d271c7f"
 
-SRC_URI = "https://download.qemu.org/${BPN}-${PV}.tar.xz \
-           file://powerpc_rom.bin \
-           file://run-ptest \
-           file://0001-qemu-Add-missing-wacom-HID-descriptor.patch \
-           file://0002-Add-subpackage-ptest-which-runs-all-unit-test-cases-.patch \
-           file://0003-qemu-Add-addition-environment-space-to-boot-loader-q.patch \
-           file://0004-qemu-disable-Valgrind.patch \
-           file://0005-qemu-native-set-ld.bfd-fix-cflags-and-set-some-envir.patch \
-           file://0006-chardev-connect-socket-to-a-spawned-command.patch \
-           file://0007-apic-fixup-fallthrough-to-PIC.patch \
-           file://0008-linux-user-Fix-webkitgtk-hangs-on-32-bit-x86-target.patch \
-           file://0009-Fix-webkitgtk-builds.patch \
-           file://0010-configure-Add-pkg-config-handling-for-libgcrypt.patch \
-           file://0001-Add-enable-disable-udev.patch \
-           file://0001-qemu-Do-not-include-file-if-not-exists.patch \
-           file://find_datadir.patch \
-           file://usb-fix-setup_len-init.patch \
-           file://0001-target-mips-Increase-number-of-TLB-entries-on-the-34.patch \
-           file://CVE-2020-24352.patch \
-           file://CVE-2020-29129-CVE-2020-29130.patch \
-           file://CVE-2020-25624.patch \
-           file://CVE-2020-25723.patch \
-           file://CVE-2020-28916.patch \
-	   file://CVE-2020-35517.patch \
-	   file://CVE-2020-29443.patch \
-	   file://CVE-2021-20203.patch \
-           "
 UPSTREAM_CHECK_REGEX = "qemu-(?P<pver>\d+(\.\d+)+)\.tar"
-
-SRC_URI[sha256sum] = "c9174eb5933d9eb5e61f541cd6d1184cd3118dfe4c5c4955bc1bdc4d390fa4e5"
 
 COMPATIBLE_HOST:mipsarchn32 = "null"
 COMPATIBLE_HOST:mipsarchn64 = "null"
@@ -58,25 +30,25 @@ do_install:append() {
 }
 
 do_compile_ptest() {
-	make buildtest-TESTS
+    make buildtest-TESTS
 }
 
 do_install_ptest() {
-	cp -rL ${B}/tests ${D}${PTEST_PATH}
-	find ${D}${PTEST_PATH}/tests -type f -name "*.[Sshcod]" | xargs -i rm -rf {}
+    cp --no-preserve=ownership -rL ${B}/tests ${D}${PTEST_PATH}
+    find ${D}${PTEST_PATH}/tests -type f -name "*.[Sshcod]" | xargs -i rm -rf {}
 
-	cp ${S}/tests/Makefile.include ${D}${PTEST_PATH}/tests
-	# Don't check the file genreated by configure
-	sed -i -e '/wildcard config-host.mak/d' \
-	       -e '$ {/endif/d}' ${D}${PTEST_PATH}/tests/Makefile.include
-        sed -i -e 's,${HOSTTOOLS_DIR}/python3,${bindir}/python3,' \
-            ${D}/${PTEST_PATH}/tests/qemu-iotests/common.env 
+    install -m 0644 ${S}/tests/Makefile.include ${D}${PTEST_PATH}/tests
+    # Don't check the file genreated by configure
+    sed -i -e '/wildcard config-host.mak/d' \
+           -e '$ {/endif/d}' ${D}${PTEST_PATH}/tests/Makefile.include
+    sed -i -e 's,${HOSTTOOLS_DIR}/python3,${bindir}/python3,' \
+        ${D}/${PTEST_PATH}/tests/qemu-iotests/common.env
 }
 
 # QEMU_TARGETS is overridable variable
 QEMU_TARGETS ?= "arm aarch64 i386 mips mipsel mips64 mips64el ppc ppc64 ppc64le riscv32 riscv64 sh4 x86_64"
 
-EXTRA_OECONF = " \
+EXTRA_OECONF = "\
     --prefix=${prefix} \
     --bindir=${bindir} \
     --includedir=${includedir} \
@@ -95,7 +67,7 @@ EXTRA_OECONF = " \
     --with-git=/bin/false \
     --disable-git-update \
     ${PACKAGECONFIG_CONFARGS} \
-    "
+"
 
 export LIBTOOL = "${HOST_SYS}-libtool"
 
@@ -103,22 +75,14 @@ B = "${WORKDIR}/build"
 
 EXTRA_OECONF:append = " --python=${HOSTTOOLS_DIR}/python3"
 
-do_configure:prepend:class-native() {
-	# Append build host pkg-config paths for native target since the host may provide sdl
-	BHOST_PKGCONFIG_PATH=$(PATH=/usr/bin:/bin pkg-config --variable pc_path pkg-config || echo "")
-	if [ ! -z "$BHOST_PKGCONFIG_PATH" ]; then
-		export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$BHOST_PKGCONFIG_PATH
-	fi
-}
-
 do_configure() {
     ${S}/configure ${EXTRA_OECONF}
 }
 do_configure[cleandirs] += "${B}"
 
 do_install () {
-	export STRIP=""
-	oe_runmake 'DESTDIR=${D}' install
+    export STRIP=""
+    oe_runmake 'DESTDIR=${D}' install
 }
 
 # The following fragment will create a wrapper for qemu-mips user emulation
@@ -128,10 +92,10 @@ do_install () {
 # the qemu-mips works fine.
 # IMPORTANT: This piece needs to be removed once the root cause is fixed!
 do_install:append() {
-	if [ -e "${D}/${bindir}/qemu-mips" ]; then
-		create_wrapper ${D}/${bindir}/qemu-mips \
-			QEMU_RESERVED_VA=0x0
-	fi
+    if [ -e "${D}/${bindir}/qemu-mips" ]; then
+        create_wrapper ${D}/${bindir}/qemu-mips \
+            QEMU_RESERVED_VA=0x0
+    fi
 }
 # END of qemu-mips workaround
 
@@ -145,6 +109,7 @@ make_qemu_wrapper() {
                         GTK_THEME=Adwaita
         done
 }
+make_qemu_wrapper[doc] = "Wrap the installed qemu-system-* binaries so they find the gdk-pixbuf loaders, fontconfig and GTK theme at runtime"
 
 # Disable kvm/virgl/mesa on targets that do not support it
 PACKAGECONFIG:remove:darwin = "kvm virglrenderer glx gtk+"
@@ -193,6 +158,9 @@ PACKAGECONFIG[vhost] = "--enable-vhost-net,--disable-vhost-net,,"
 PACKAGECONFIG[ust] = "--enable-trace-backend=ust,--enable-trace-backend=nop,lttng-ust,"
 PACKAGECONFIG[pie] = "--enable-pie,--disable-pie,,"
 
+# QEMU ships firmware and BIOS blobs built for guest architectures other than
+# the build target, so the arch QA check flags them by design.
+# nooelint: oelint.vars.insaneskip
 INSANE_SKIP:${PN} = "arch"
 
 FILES:${PN} += "${datadir}/icons"

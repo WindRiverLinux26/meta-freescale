@@ -2,11 +2,10 @@ require odp.inc
 
 inherit autotools-brokensep
 
-PACKAGE_ARCH = "${MACHINE_ARCH}"
-
-DEPENDS = "openssl cunit libxml2"
-
-RDEPENDS:${PN} = "bash libcrypto libssl odp-module odp-counters"
+# odp.inc does not set DEPENDS, so this is the canonical definition rather than
+# an override after the require.
+# nooelint: oelint.vars.dependsappend
+DEPENDS = "cunit libxml2 openssl"
 
 ODP_SOC ?= ""
 ODP_SOC:ls1043ardb = "LS1043"
@@ -16,6 +15,8 @@ ODP_BUILD_TYPE ?= "ls2088"
 ODP_BUILD_TYPE:ls1043ardb = "ls1043"
 ODP_BUILD_TYPE:ls1046ardb = "ls1046"
 ODP_BUILD_TYPE:ls1088ardb = "ls1088"
+
+PACKAGECONFIG[perf] = "--enable-test-perf,,,"
 
 EXTRA_OECONF = "--with-platform=${ODP_PLATFORM} \
                 --enable-test-vald \
@@ -28,10 +29,10 @@ EXTRA_OEMAKE = "CROSS_COMPILE="${TARGET_PREFIX}" \
 "
 
 CFLAGS += "-Wno-format-truncation -Wno-maybe-uninitialized -Wno-implicit-fallthrough -Wno-cpp -Wno-cast-function-type \
-          -Wno-stringop-truncation \
+           -Wno-stringop-truncation \
 "
 
-PACKAGECONFIG[perf] = "--enable-test-perf,,,"
+PACKAGE_ARCH = "${MACHINE_ARCH}"
 
 do_configure:prepend () {
     export SOC=${ODP_SOC}
@@ -49,10 +50,10 @@ do_install:append () {
     install -d ${D}${includedir}/odp/flib/mc
     install -d ${D}${includedir}/odp/flib/qbman/include/drivers
 
-    cp -rf ${S}/platform/linux-dpaa2/include/* ${D}${includedir}/odp/
-    cp -rf ${S}/platform/linux-dpaa2/kni/*.h ${D}${includedir}/odp/kni/
-    cp -rf ${S}/kern/*.h ${D}${includedir}/odp/kern/
-    cp -rf ${S}/platform/linux-dpaa2/flib/mc/*.h ${D}${includedir}/odp/flib/mc/
+    cp --no-preserve=ownership -rf ${S}/platform/linux-dpaa2/include/* ${D}${includedir}/odp/
+    cp --no-preserve=ownership -rf ${S}/platform/linux-dpaa2/kni/*.h ${D}${includedir}/odp/kni/
+    cp --no-preserve=ownership -rf ${S}/kern/*.h ${D}${includedir}/odp/kern/
+    cp --no-preserve=ownership -rf ${S}/platform/linux-dpaa2/flib/mc/*.h ${D}${includedir}/odp/flib/mc/
 
     sed -i -e 's#platform/linux-dpaa2/##g' ${D}${includedir}/odp/kern/*.h
 }
@@ -60,3 +61,5 @@ do_install:append () {
 FILES:${PN}-staticdev += "${datadir}/opendataplane/*.la"
 FILES:${PN} += "/usr/odp/bin /usr/odp/scripts /usr/odp/debug /usr/odp/test/validation /usr/odp/test/performance /usr/odp/test/miscellaneous /usr/odp/test/api_test"
 FILES:${PN}-dbg += "/usr/odp/bin/.debug /usr/odp/debug/.debug /usr/odp/test/validation/.debug /usr/odp/test/performance/.debug /usr/odp/test/miscellaneous/.debug /usr/odp/test/api_test/.debug"
+
+RDEPENDS:${PN} = "bash libcrypto libssl odp-counters odp-module"

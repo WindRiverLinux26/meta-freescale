@@ -1,6 +1,6 @@
 #
 # This class provides a support to build the boot container for
-# i.MX8M and i.MX95 derivatives
+# i.MX8M, i.MX91, i.MX93 and i.MX95 derivatives
 #
 # imx8m machines require a separate build target to be executed
 # due to the fact that final boot image is constructed using flash.bin
@@ -26,21 +26,30 @@
 inherit use-imx-security-controller-firmware
 
 # Define ATF binary file to be deployed to the U-Boot build folder
-ATF_MACHINE_NAME = "bl31-${ATF_PLATFORM}.bin"
+ATF_MACHINE_NAME ?= "bl31-${ATF_PLATFORM}.bin"
+# The append concatenates an "-optee" suffix directly onto the filename, so the
+# missing leading space is intentional (a space would break the name).
+# nooelint: oelint.vars.inconspaces
 ATF_MACHINE_NAME:append = "${@bb.utils.contains('MACHINE_FEATURES', 'optee', '-optee', '', d)}"
 
 OEI_NAME ?= "oei-${OEI_CORE}-*.bin"
 
 IMX_BOOT_CONTAINER_FIRMWARE_SOC ?= ""
-IMX_BOOT_CONTAINER_FIRMWARE_SOC:mx8mq-generic-bsp = " \
+IMX_BOOT_CONTAINER_FIRMWARE_SOC:mx8mq-generic-bsp = "\
     signed_dp_imx8m.bin \
     signed_hdmi_imx8m.bin \
 "
-IMX_BOOT_CONTAINER_FIRMWARE_SOC:mx95-generic-bsp = " \
+IMX_BOOT_CONTAINER_FIRMWARE_SOC:mx91-generic-bsp = "\
+    ${SECO_FIRMWARE_NAME} \
+"
+IMX_BOOT_CONTAINER_FIRMWARE_SOC:mx93-generic-bsp = "\
+    ${SECO_FIRMWARE_NAME} \
+"
+IMX_BOOT_CONTAINER_FIRMWARE_SOC:mx95-generic-bsp = "\
     ${SECO_FIRMWARE_NAME} \
     ${OEI_NAME} \
 "
-IMX_BOOT_CONTAINER_FIRMWARE ?= " \
+IMX_BOOT_CONTAINER_FIRMWARE ?= "\
     ${IMX_BOOT_CONTAINER_FIRMWARE_SOC} \
     ${DDR_FIRMWARE_NAME} \
 "
@@ -55,6 +64,7 @@ do_resolve_and_populate_binaries[depends] += " \
 
 # Define an additional task that collects binary output from dependent packages
 # and deploys them into the U-Boot build folder
+do_resolve_and_populate_binaries[doc] = "Collect the ATF, DDR, SECO/OEI and optional OP-TEE firmware binaries into the U-Boot build folder for the boot container"
 do_resolve_and_populate_binaries() {
     if [ -n "${UBOOT_CONFIG}" ]; then
         for config in ${UBOOT_MACHINE}; do

@@ -1,26 +1,20 @@
+SUMMARY = "Contiguous DMA memory allocation library for i.MX"
 DESCRIPTION = 'Library for allocating and managing physically contiguous memory \
-               ("DMA memory" or "DMA buffers") on i.MX devices.'
+              ("DMA memory" or "DMA buffers") on i.MX devices.'
 HOMEPAGE = "https://github.com/Freescale/libimxdmabuffer"
+SECTION = "base"
 LICENSE = "LGPL-2.1-only"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=38fa42a5a6425b26d2919b17b1527324"
-SECTION = "base"
 
 PV .= "+git${SRCPV}"
 
 SRCBRANCH ?= "master"
-SRCREV = "d44deb80af881b82f394d44696433e6695022c8c"
 SRC_URI = "git://github.com/Freescale/libimxdmabuffer.git;branch=${SRCBRANCH};protocol=https \
            file://run-ptest \
-          "
+           "
+SRCREV = "d44deb80af881b82f394d44696433e6695022c8c"
 
 inherit pkgconfig waf use-imx-headers ptest
-
-EXTRA_OECONF = "--imx-linux-headers-path=${STAGING_INCDIR_IMX} \
-                --libdir=${libdir} \
-                ${@bb.utils.contains_any('PACKAGECONFIG', \
-                   [ 'dma-heap-cached', 'dma-heap-uncached' ], \
-                   '', '--with-dma-heap-allocator=no',d)} \
-                ${PACKAGECONFIG_CONFARGS}"
 
 # If imxdpu is in use, the DPU is also used for implementing
 # libg2d. However, that implementation's g2d_alloc() function
@@ -47,36 +41,43 @@ CACHED_DMA_HEAP_CONF = "--dma-heap-device-node-path=${CACHED_DMA_HEAP_DEVICE_NOD
 UNCACHED_DMA_HEAP_CONF = "--dma-heap-device-node-path=${UNCACHED_DMA_HEAP_DEVICE_NODE_PATH} \
                           --dma-heap-uncached-memory"
 
-PACKAGECONFIG ?= " "
-PACKAGECONFIG:append:imxgpu2d         = " ${LIBG2D_PACKAGECONFIG}"
-PACKAGECONFIG:append:imxipu           = " ipu"
-PACKAGECONFIG:append:imxpxp           = " pxp"
+PACKAGECONFIG ?= ""
+PACKAGECONFIG:append:imxgpu2d = " ${LIBG2D_PACKAGECONFIG}"
+PACKAGECONFIG:append:imxipu = " ipu"
+PACKAGECONFIG:append:imxpxp = " pxp"
 # All i.MX8 machines can use the dma-heap allocator. i.MX8m ones
 # can also use the DWL allocator, though dma-heap is preferred.
 # Vendor kernels that are older than kernel 5.6 cannot use
 # dma-heap, however, and should use ion instead, since the
 # former is not available pre-5.6. Out of the dma-heaps, we
 # pick the uncached one by default (see above).
-PACKAGECONFIG:append:mx8-nxp-bsp      = " dma-heap-uncached"
-PACKAGECONFIG:append:mx8mq-nxp-bsp     = " dwl"
-PACKAGECONFIG:append:mx8mm-nxp-bsp     = " dwl"
-PACKAGECONFIG:append:mx8mp-nxp-bsp     = " dwl"
+PACKAGECONFIG:append:mx8-nxp-bsp = " dma-heap-uncached"
+PACKAGECONFIG:append:mx8mq-nxp-bsp = " dwl"
+PACKAGECONFIG:append:mx8mm-nxp-bsp = " dwl"
+PACKAGECONFIG:append:mx8mp-nxp-bsp = " dwl"
 
 HANTRO_CONF = "--hantro-headers-path=${STAGING_INCDIR}/hantro_dec --hantro-decoder-version=G2"
 
-PACKAGECONFIG[dwl]      = "--with-dwl-allocator=yes ${HANTRO_CONF}, --with-dwl-allocator=no,imx-vpu-hantro"
-PACKAGECONFIG[ion]      = "--with-ion-allocator=yes,                --with-ion-allocator=no,"
-PACKAGECONFIG[ipu]      = "--with-ipu-allocator=yes,                --with-ipu-allocator=no,"
-PACKAGECONFIG[g2d]      = "--with-g2d-allocator=yes,                --with-g2d-allocator=no,virtual/libg2d"
-PACKAGECONFIG[pxp]      = "--with-pxp-allocator=yes,                --with-pxp-allocator=no,"
+PACKAGECONFIG[dwl] = "--with-dwl-allocator=yes ${HANTRO_CONF}, --with-dwl-allocator=no,imx-vpu-hantro"
+PACKAGECONFIG[ion] = "--with-ion-allocator=yes,                --with-ion-allocator=no,"
+PACKAGECONFIG[ipu] = "--with-ipu-allocator=yes,                --with-ipu-allocator=no,"
+PACKAGECONFIG[g2d] = "--with-g2d-allocator=yes,                --with-g2d-allocator=no,virtual/libg2d"
+PACKAGECONFIG[pxp] = "--with-pxp-allocator=yes,                --with-pxp-allocator=no,"
 # --with-dma-heap-allocator=no is not added by these packageconfigs.
 # Otherwise, it would always be added, since only one of these two
 # dma-heap-* packageconfigs can be selected. Instead, that switch
 # is added to EXTRA_OECONF above.
-PACKAGECONFIG[dma-heap-cached]   = "--with-dma-heap-allocator=yes ${CACHED_DMA_HEAP_CONF}, \
+PACKAGECONFIG[dma-heap-cached] = "--with-dma-heap-allocator=yes ${CACHED_DMA_HEAP_CONF}, \
                                     ,,,,dma-heap-uncached"
 PACKAGECONFIG[dma-heap-uncached] = "--with-dma-heap-allocator=yes ${UNCACHED_DMA_HEAP_CONF}, \
                                     ,,,,dma-heap-cached"
+
+EXTRA_OECONF = "--imx-linux-headers-path=${STAGING_INCDIR_IMX} \
+                --libdir=${libdir} \
+                ${@bb.utils.contains_any('PACKAGECONFIG', \
+                   [ 'dma-heap-cached', 'dma-heap-uncached' ], \
+                   '', '--with-dma-heap-allocator=no',d)} \
+                ${PACKAGECONFIG_CONFARGS}"
 
 # Using do_install_ptest_base instead of do_install_ptest, since
 # the default do_install_ptest_base is hardcoded to expect Makefiles.

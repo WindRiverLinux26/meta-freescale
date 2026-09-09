@@ -1,12 +1,18 @@
 # Copyright 2020-2025 NXP
 
-DESCRIPTION = "i.MX Verisilicon Software ISP"
+SUMMARY = "i.MX VeriSilicon software ISP"
+DESCRIPTION = "VeriSilicon image signal processing (ISP) software stack for i.MX SoCs."
+HOMEPAGE = "https://www.nxp.com/"
+SECTION = "multimedia"
 LICENSE = "Proprietary"
 LIC_FILES_CHKSUM = "file://COPYING;md5=bc649096ad3928ec06a8713b8d787eac"
 
-DEPENDS = "boost libdrm virtual/libg2d libtinyxml2 jsoncpp patchelf-native"
+DEPENDS = "boost jsoncpp libdrm libtinyxml2 patchelf-native virtual/libg2d"
 
 SRC_URI = "${FSL_MIRROR}/${BP}-${IMX_SRCREV_ABBREV}.bin;fsl-eula=true"
+SRC_URI += "${@bb.utils.contains('DISTRO_FEATURES', 'systemd', '${ISP_SYSTEMD_PATCH}', '', d)}"
+ISP_SYSTEMD_PATCH = "file://0001-isp-imx-start_isp-don-t-report-error-if-no-camera-is.patch"
+
 SRC_URI[sha256sum] = "ab04d9eae4917591ca21f4ae13269c4e5a6f1b8e2f357cca1693682fa9a87249"
 
 IMX_SRCREV_ABBREV = "3cbd4a2"
@@ -27,11 +33,11 @@ OECMAKE_SOURCEPATH = "${S}/appshell"
 OECMAKE_GENERATOR = "Unix Makefiles"
 
 # Workaround for linking issues seen with gold linker
-LDFLAGS:append = "${@bb.utils.contains('DISTRO_FEATURES', 'ld-is-gold', ' -fuse-ld=bfd ', '', d)}"
+LDFLAGS:append = " ${@bb.utils.contains('DISTRO_FEATURES', 'ld-is-gold', '-fuse-ld=bfd', '', d)}"
 
 SYSTEMD_SERVICE:${PN} = "imx8-isp.service"
 
-EXTRA_OECMAKE += " \
+EXTRA_OECMAKE += "\
     -DSDKTARGETSYSROOT=${STAGING_DIR_HOST} \
     -DCMAKE_BUILD_TYPE=release \
     -DISP_VERSION=ISP8000NANO_V1802 \
@@ -60,6 +66,13 @@ do_install() {
         rm ${D}/opt/imx8-isp/bin/tuningext
     fi
 
+    # The prebuilt ISP components were linked against jsoncpp 1.9.6
+    # (SONAME 26). jsoncpp 1.9.7 ships SONAME 27, so update the dynamic
+    # dependency.
+    patchelf --replace-needed libjsoncpp.so.26 libjsoncpp.so.27 \
+        ${D}${libdir}/libmedia_server.so \
+        ${D}/opt/imx8-isp/bin/isp_media_server
+
     if ${@bb.utils.contains('DISTRO_FEATURES','systemd','true','false',d)}; then
         install -d ${D}${systemd_system_unitdir}
         install -m 0644 ${S}/imx/imx8-isp.service ${D}${systemd_system_unitdir}
@@ -73,13 +86,16 @@ do_install() {
 FILES_SOLIBSDEV = ""
 FILES:${PN} += "/opt ${libdir}/lib*${SOLIBSDEV}"
 FILES:${PN}-dev += "${FILES_SOLIBS_VERSIONED}"
-FILES_SOLIBS_VERSIONED = " \
+FILES_SOLIBS_VERSIONED = "\
     ${libdir}/libcppnetlib-client-connections.so \
     ${libdir}/libcppnetlib-server-parsers.so \
     ${libdir}/libcppnetlib-uri.so \
     ${libdir}/libos08a20.so \
 "
 
+# The prebuilt ISP and sensor driver libraries are shipped already stripped, so
+# the already-stripped QA check does not apply.
+# nooelint: oelint.vars.insaneskip
 INSANE_SKIP:${PN} = "already-stripped"
 
 RDEPENDS:${PN} = "libdrm"

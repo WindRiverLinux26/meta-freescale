@@ -1,6 +1,9 @@
 # Copyright 2020-2024 NXP
 
-DESCRIPTION = "Basler camera binary drivers"
+SUMMARY = "Basler camera binary drivers"
+DESCRIPTION = "Basler camera binary drivers for the i.MX ISP."
+HOMEPAGE = "https://www.nxp.com/"
+SECTION = "multimedia"
 LICENSE = "Proprietary"
 LIC_FILES_CHKSUM = "file://COPYING;md5=bc649096ad3928ec06a8713b8d787eac"
 
@@ -21,9 +24,13 @@ do_install() {
 
 SYSTEMD_AUTO_ENABLE = "enable"
 
+# The Basler camera stack installs into ${libdir} and /opt and is packed explicitly.
+# nooelint: oelint.var.filesoverride
 FILES:${PN} = "${libdir} /opt"
+# The Basler camera stack ships prebuilt binaries that are already stripped, so
+# the already-stripped QA check does not apply.
+# nooelint: oelint.vars.insaneskip
 INSANE_SKIP:${PN} = "already-stripped"
 RDEPENDS:${PN} += "isp-imx"
-
 
 COMPATIBLE_MACHINE = "(mx8mp-nxp-bsp)"

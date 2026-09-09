@@ -4,6 +4,7 @@
 SUMMARY = "OP-TEE sanity testsuite"
 DESCRIPTION = "Open Portable Trusted Execution Environment - Test suite"
 HOMEPAGE = "https://www.op-tee.org/"
+SECTION = "base"
 
 LICENSE = "BSD-2-Clause & GPL-2.0-only"
 
@@ -11,12 +12,12 @@ inherit python3native ptest
 inherit deploy
 require optee-fslc.inc
 
-DEPENDS = "optee-client optee-os-tadevkit python3-cryptography-native openssl"
+DEPENDS = "openssl optee-client optee-os-tadevkit python3-cryptography-native"
 DEPENDS:append:toolchain-clang = " lld-native"
 
 SRC_URI = "git://github.com/OP-TEE/optee_test.git;branch=master;protocol=https \
            file://run-ptest \
-          "
+           "
 
 B = "${WORKDIR}/build"
 
@@ -25,7 +26,7 @@ EXTRA_OEMAKE += "TA_DEV_KIT_DIR=${TA_DEV_KIT_DIR} \
                  CROSS_COMPILE_HOST=${HOST_PREFIX} \
                  CROSS_COMPILE_TA=${HOST_PREFIX} \
                  O=${B} \
-               "
+                 "
 
 CFLAGS += "-Wno-error=deprecated-declarations"
 
@@ -43,9 +44,9 @@ do_install () {
 
     # install path should match the value set in optee-client/tee-supplicant
     # default TEEC_LOAD_PATH is /lib
-    mkdir -p ${D}${nonarch_base_libdir}/optee_armtz/
+    install -d ${D}${nonarch_base_libdir}/optee_armtz/
     install -D -p -m0444 ${B}/ta/*/*.ta ${D}${nonarch_base_libdir}/optee_armtz/
-    mkdir -p ${D}${libdir}/tee-supplicant/plugins
+    install -d ${D}${libdir}/tee-supplicant/plugins
     install -D -p -m0444 ${B}/supp_plugin/*.plugin ${D}${libdir}/tee-supplicant/plugins/
 }
 
@@ -56,9 +57,9 @@ do_deploy () {
 
 addtask deploy before do_build after do_install
 
-FILES:${PN} += "${nonarch_base_libdir}/optee_armtz/ \
-                ${libdir}/tee-supplicant/plugins/ \
-               "
-
 # Imports machine specific configs from staging to build
 PACKAGE_ARCH = "${MACHINE_ARCH}"
+
+FILES:${PN} += "${nonarch_base_libdir}/optee_armtz/ \
+                ${libdir}/tee-supplicant/plugins/ \
+                "

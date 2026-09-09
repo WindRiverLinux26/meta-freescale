@@ -448,7 +448,6 @@ MACHINE_FIRMWARE:append:mx8mq-generic-bsp    = " linux-firmware-imx-sdma-imx7d"
 MACHINE_FIRMWARE:append:mx8qxp-generic-bsp   = " linux-firmware-imx-sdma-imx7d firmware-imx-vpu-amphion"
 MACHINE_FIRMWARE:append:mx8dx-generic-bsp    = " linux-firmware-imx-sdma-imx7d firmware-imx-vpu-amphion"
 MACHINE_FIRMWARE:append:mx95-generic-bsp     = " firmware-imx-vpu-wave"
-MACHINE_FIRMWARE:append:imx-mainline-bsp     = " linux-firmware-imx-sdma-imx6q linux-firmware-imx-sdma-imx7d firmware-imx-vpu-imx6q firmware-imx-vpu-imx6d"
 
 MACHINE_EXTRA_RRECOMMENDS += "${MACHINE_FIRMWARE}"
 
@@ -501,9 +500,12 @@ MACHINE_EXTRA_RRECOMMENDS += " \
     ${@bb.utils.filter('COMBINED_FEATURES', 'jailhouse', d)} \
 "
 
-# ELE extra Firmware
-SECOEXT_FIRMWARE_NAME ?= "UNDEFINED"
+# ELE extra Firmware,to be installed and accessed from userspace.
+# Note that multiple names can be given in order to install multiple versions
+# to a single rootfs.
+SECOEXT_FIRMWARE_NAME ?= ""
 SECOEXT_FIRMWARE_NAME:mx8ulp-generic-bsp ?= "mx8ulp${IMX_SOC_REV_LOWER}ext-ahab-container.img"
+SECOEXT_FIRMWARE_NAME:mx95-generic-bsp   ?= "mx95a0runtime-ahab-container.img mx95b0runtime-ahab-container.img"
 SECOEXT_FIRMWARE_NAME:mx943-generic-bsp  ?= "mx943${IMX_SOC_REV_LOWER}runtime-ahab-container.img"
 
 # GStreamer 1.0 plugins
@@ -526,20 +528,20 @@ MACHINE_GSTREAMER_1_0_PLUGIN:mx8ulp-nxp-bsp ?= "imx-gst1.0-plugin"
 MACHINE_GSTREAMER_1_0_PLUGIN:mx93-nxp-bsp   ?= "imx-gst1.0-plugin"
 
 # GStreamer forked recipes
-PREFERRED_VERSION_gstreamer1.0:imx-nxp-bsp              ??= "1.26.6.imx"
-PREFERRED_VERSION_gstreamer1.0-plugins-bad:imx-nxp-bsp  ??= "1.26.6.imx"
-PREFERRED_VERSION_gstreamer1.0-plugins-base:imx-nxp-bsp ??= "1.26.6.imx"
-PREFERRED_VERSION_gstreamer1.0-plugins-good:imx-nxp-bsp ??= "1.26.6.imx"
+PREFERRED_VERSION_gstreamer1.0:imx-nxp-bsp              ??= "1.28.1.imx"
+PREFERRED_VERSION_gstreamer1.0-plugins-bad:imx-nxp-bsp  ??= "1.28.1.imx"
+PREFERRED_VERSION_gstreamer1.0-plugins-base:imx-nxp-bsp ??= "1.28.1.imx"
+PREFERRED_VERSION_gstreamer1.0-plugins-good:imx-nxp-bsp ??= "1.28.1.imx"
 
 
 # GStreamer copied recipes
-PREFERRED_VERSION_gst-devtools:imx-nxp-bsp              ??= "1.26.6.imx"
-PREFERRED_VERSION_gst-examples:imx-nxp-bsp              ??= "1.24.7.imx"
-PREFERRED_VERSION_gstreamer1.0-libav:imx-nxp-bsp        ??= "1.26.6.imx"
-PREFERRED_VERSION_gstreamer1.0-plugins-ugly:imx-nxp-bsp ??= "1.26.6.imx"
-PREFERRED_VERSION_gstreamer1.0-python:imx-nxp-bsp       ??= "1.26.6.imx"
-PREFERRED_VERSION_gstreamer1.0-rtsp-server:imx-nxp-bsp  ??= "1.26.6.imx"
-PREFERRED_VERSION_gstreamer1.0-vaapi:imx-nxp-bsp        ??= "1.26.6.imx"
+PREFERRED_VERSION_gst-devtools:imx-nxp-bsp              ??= "1.28.1"
+PREFERRED_VERSION_gst-examples:imx-nxp-bsp              ??= "1.28.1"
+PREFERRED_VERSION_gstreamer1.0-libav:imx-nxp-bsp        ??= "1.28.1"
+PREFERRED_VERSION_gstreamer1.0-plugins-ugly:imx-nxp-bsp ??= "1.28.1"
+PREFERRED_VERSION_gstreamer1.0-python:imx-nxp-bsp       ??= "1.28.1"
+PREFERRED_VERSION_gstreamer1.0-rtsp-server:imx-nxp-bsp  ??= "1.28.1"
+PREFERRED_VERSION_gstreamer1.0-vaapi:imx-nxp-bsp        ??= "1.26.6"
 
 # Use libcamera fork for certain SOCs
 PREFERRED_VERSION_libcamera ??= "${PREFERRED_VERSION_LIBCAMERA_IMX}"
@@ -597,7 +599,7 @@ PREFERRED_VERSION_weston:mx7-nxp-bsp      ??= "10.0.5.imx"
 PREFERRED_VERSION_weston:imx-mainline-bsp   = ""
 
 # Use i.MX libdrm Version
-PREFERRED_VERSION_libdrm:imx-nxp-bsp ??= "2.4.123.imx"
+PREFERRED_VERSION_libdrm:imx-nxp-bsp ??= "2.4.127.imx"
 
 PREFERRED_VERSION_glslang:imxvulkan                  ??= "1.3.275.0.imx"
 PREFERRED_VERSION_spirv-headers:imxvulkan            ??= "1.3.275.0.imx"
@@ -615,8 +617,8 @@ PREFERRED_VERSION_optee-test:imx-nxp-bsp   ??= "4.8.0.imx"
 PREFERRED_VERSION_optee-os-tadevkit:imx-nxp-bsp   ??= "4.8.0.imx"
 
 # Use i.MX opencv Version
-PREFERRED_VERSION_opencv:mx8-nxp-bsp ??= "4.6.0.imx"
-PREFERRED_VERSION_opencv:mx9-nxp-bsp ??= "4.6.0.imx"
+PREFERRED_VERSION_opencv:mx8-nxp-bsp ??= "4.13.0.imx"
+PREFERRED_VERSION_opencv:mx9-nxp-bsp ??= "4.13.0.imx"
 
 # Handle default kernel
 IMX_DEFAULT_KERNEL:imx-mainline-bsp ??= "linux-fslc"
@@ -679,6 +681,8 @@ SOC_DEFAULT_WKS_FILE:mx8-generic-bsp ?= "imx-imx-boot-bootpart.wks.in"
 SOC_DEFAULT_WKS_FILE:mx9-generic-bsp ?= "imx-imx-boot-bootpart.wks.in"
 
 WKS_FILE ?= "${SOC_DEFAULT_WKS_FILE}"
+IMX_BOOTLOADER_PTABLE             ?= "msdos"
+IMX_BOOTLOADER_PTABLE:use-nxp-bsp ?= "gpt"
 
 SERIAL_CONSOLES = "115200;ttymxc0"
 SERIAL_CONSOLES:mxs-generic-bsp = "115200;ttyAMA0"
@@ -693,6 +697,18 @@ HOSTTOOLS_NONFATAL:append:mx8-nxp-bsp = " sha384sum"
 
 # Add task to generate the mfgtool bundle for the image.
 IMAGE_CLASSES:append:imx-generic-bsp = " image_populate_mfgtool"
+
+# i.MX host tools for the SDK. Deliberately not a bbappend to
+# nativesdk-packagegroup-sdk-host: that packagegroup has a fixed PACKAGE_ARCH
+# (${SDK_ARCH}-nativesdk), so varying its RDEPENDS by MACHINE would emit
+# different content under one package architecture. TOOLCHAIN_HOST_TASK is
+# consumed by the SDK recipe, which is already machine-specific.
+TOOLCHAIN_HOST_TASK:append:imx-generic-bsp = " \
+    nativesdk-imx-usb-loader \
+    nativesdk-mxsldr \
+    nativesdk-u-boot-mkimage \
+    ${@bb.utils.contains('DISTRO_FEATURES', 'wayland', 'nativesdk-wayland', '', d)} \
+"
 
 SECO_FIRMWARE_NAME:mx943-generic-bsp ?= "mx943${IMX_SOC_REV_LOWER}-ahab-container.img"
 

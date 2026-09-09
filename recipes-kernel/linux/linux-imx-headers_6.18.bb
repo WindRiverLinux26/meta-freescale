@@ -3,23 +3,29 @@
 
 SUMMARY = "Installs i.MX-specific kernel headers"
 DESCRIPTION = "Installs i.MX-specific kernel headers to userspace. \
-New headers are installed in ${includedir}/imx."
+               New headers are installed in ${includedir}/imx."
+HOMEPAGE = "https://github.com/nxp-imx/linux-imx"
+SECTION = "devel"
 LICENSE = "GPL-2.0-only"
 LIC_FILES_CHKSUM = "file://COPYING;md5=6bc538ed5bd9a7fc9398086aedcd7e46"
 
-SRC_URI = "${LINUX_IMX_SRC}"
+INHIBIT_DEFAULT_DEPS = "1"
+DEPENDS += "bison-native rsync-native unifdef-native"
+
+SRC_URI = "${LINUX_IMX_SRC} \
+           file://0001-ipu-uapi-Do-not-redefine-standard-integer-types.patch \
+"
 LINUX_IMX_SRC ?= "git://github.com/nxp-imx/linux-imx.git;protocol=https;branch=${SRCBRANCH}"
 SRCBRANCH = "lf-6.18.y"
 LOCALVERSION = "-lts-${SRCBRANCH}"
 KBRANCH = "${SRCBRANCH}"
 SRCREV = "f49f45233f7b10006ce7e9c826ee882bb14ac8b5"
 
-
 do_configure[noexec] = "1"
 
 do_compile[noexec] = "1"
 
-IMX_UAPI_HEADERS = " \
+IMX_UAPI_HEADERS = "\
     dma-buf.h \
     hantrodec.h \
     hx280enc.h \
@@ -36,7 +42,7 @@ IMX_UAPI_HEADERS = " \
     videodev2.h \
 "
 
-IMX_UAPI_HEADERS_SOUND = " \
+IMX_UAPI_HEADERS_SOUND = "\
     sound/compress_offload.h \
     sound/compress_params.h \
 "
@@ -76,9 +82,6 @@ do_install() {
 # package, therefore causing the -dev package also to be skipped effectively not
 # populating it into SDK
 ALLOW_EMPTY:${PN} = "1"
-
-INHIBIT_DEFAULT_DEPS = "1"
-DEPENDS += "unifdef-native bison-native rsync-native"
 
 PACKAGE_ARCH = "${MACHINE_SOCARCH}"
 

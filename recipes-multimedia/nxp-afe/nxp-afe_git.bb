@@ -1,18 +1,22 @@
-# Copyright 2025 NXP
+# Copyright 2025-2026 NXP
 
+SUMMARY = "NXP Audio Front End (AFE)"
 DESCRIPTION = "NXP Audio Front End (AFE) for incorporating Voice Assistants"
+HOMEPAGE = "https://github.com/nxp-imx/nxp-afe"
+SECTION = "multimedia"
 LICENSE = "BSD-3-Clause"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=7bdef19938f3503cfc4c586461f99012"
 
+DEPENDS += "alsa-lib"
+
 PV = "1.0+git"
 
-SRCBRANCH = "MM_04.10.03_2512_L6.18.2"
+SRCBRANCH = "MM_04.11.00_2605_L6.18.20"
 NXPAFE_SRC ?= "git://github.com/nxp-imx/nxp-afe.git;protocol=https"
-SRC_URI = " ${NXPAFE_SRC};branch=${SRCBRANCH}"
+
+SRC_URI = "${NXPAFE_SRC};branch=${SRCBRANCH}"
 
 SRCREV = "7d518eb0b18f7c7faadeb3c3397f8b73f0012f3e"
-
-DEPENDS += "alsa-lib"
 
 TARGET_CC_ARCH += "${LDFLAGS}"
 
@@ -28,5 +32,10 @@ do_install() {
 }
 
 FILES:${PN} += "/unit_tests"
+# Prebuilt versioned .so shipped with an unversioned symlink in the main package.
+# nooelint: oelint.vars.insaneskip
 INSANE_SKIP:${PN} += "dev-so"
+# do_install ships only the prebuilt binaries from deploy_afe/, so their debug
+# info carries NXP's build paths and cannot be scrubbed from here.
+# nooelint: oelint.vars.insaneskip
 INSANE_SKIP:${PN}-dbg += "buildpaths"

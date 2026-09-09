@@ -1,4 +1,4 @@
-SUMMARY = "An open source user space fast path TCP/IP stack" 
+SUMMARY = "An open source user space fast path TCP/IP stack"
 DESCRIPTION = "openfastpath is used to enable accelerated routing/forwarding for IPv4 and IPv6, \
                tunneling and termination for a variety of protocols."
 HOMEPAGE = "http://www.openfastpath.org"
@@ -6,22 +6,22 @@ SECTION = "console/network"
 LICENSE = "BSD-3-Clause"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=fbe4957c430eed6cc20521d4eb429fae"
 
+DEPENDS = "odp"
+
 SRC_URI = "git://github.com/nxp-qoriq/ofp;protocol=https;nobranch=1"
 
 SRCREV = "fe66f4659f7d356f7aa73a8fb32fcf67c6cf1108"
 
 inherit autotools-brokensep pkgconfig
 
-PACKAGE_ARCH = "${MACHINE_ARCH}"
-
-DEPENDS = "odp"
-
-EXTRA_OECONF = " \
+EXTRA_OECONF = "\
     --prefix=/usr \
     --libdir=${libdir} \
     --host=${SIMPLE_TARGET_SYS} \
     --with-odp=${STAGING_DIR_TARGET} \
 "
+
+PACKAGE_ARCH = "${MACHINE_ARCH}"
 
 do_configure () {
     export SIMPLE_TARGET_SYS="$(echo ${TARGET_SYS} | sed s:${TARGET_VENDOR}::g)"

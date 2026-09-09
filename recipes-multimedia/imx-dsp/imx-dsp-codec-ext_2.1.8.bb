@@ -1,6 +1,10 @@
 # Copyright 2018-2023 NXP
 
-DESCRIPTION = "i.MX DSP Codec Wrapper and Lib owned by NXP"
+SUMMARY = "i.MX DSP codec wrapper and library extension"
+DESCRIPTION = "i.MX DSP codec wrapper and library extension providing additional \
+               audio codecs for the i.MX DSP framework."
+HOMEPAGE = "https://www.nxp.com/"
+SECTION = "multimedia"
 LICENSE = "Proprietary"
 LIC_FILES_CHKSUM = "file://COPYING;md5=10c0fda810c63b052409b15a5445671a"
 
@@ -20,6 +24,9 @@ EXTRA_OECONF:append:mx8ulp-nxp-bsp = " --enable-imx8ulp"
 INHIBIT_PACKAGE_STRIP = "1"
 INHIBIT_SYSROOT_STRIP = "1"
 INHIBIT_PACKAGE_DEBUG_SPLIT = "1"
+# Prebuilt NXP DSP codec blob (shipped as a .bin under EULA, not built from
+# source), so the arch, dev-so and ldflags QA checks cannot apply to it.
+# nooelint: oelint.vars.insaneskip
 INSANE_SKIP:${PN} = "arch dev-so ldflags"
 
 FILES:${PN} += "${libdir}/imx-mm/audio-codec/dsp ${datadir}/imx-mm"

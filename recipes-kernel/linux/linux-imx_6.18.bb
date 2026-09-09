@@ -8,7 +8,9 @@
 
 SUMMARY = "Linux Kernel provided and supported by NXP"
 DESCRIPTION = "Linux Kernel provided and supported by NXP with focus on \
-i.MX Family Reference Boards. It includes support for many IPs such as GPU, VPU and IPU."
+               i.MX Family Reference Boards. It includes support for many IPs such as GPU, VPU and IPU."
+HOMEPAGE = "https://github.com/nxp-imx/linux-imx"
+SECTION = "kernel"
 
 require recipes-kernel/linux/linux-imx.inc
 

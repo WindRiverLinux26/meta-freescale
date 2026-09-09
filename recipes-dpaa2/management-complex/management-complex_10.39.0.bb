@@ -1,4 +1,7 @@
 SUMMARY = "DPAA2 Management Complex Firmware"
+DESCRIPTION = "DPAA2 Management Complex (MC) firmware for NXP QorIQ Layerscape SoCs."
+HOMEPAGE = "https://github.com/nxp/qoriq-mc-binary"
+SECTION = "bsp"
 LICENSE = "NXP-Binary-EULA"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=0701845051a61f6012009d7d6d11b32b"
 
@@ -30,10 +33,10 @@ do_deploy () {
 }
 addtask deploy before do_build after do_install
 
+PACKAGE_ARCH = "${MACHINE_ARCH}"
 PACKAGES += "${PN}-image"
 FILES:${PN}-image += "/boot"
 
 INHIBIT_PACKAGE_STRIP = "1"
 
 COMPATIBLE_MACHINE = "(qoriq-arm64)"
-PACKAGE_ARCH = "${MACHINE_ARCH}"

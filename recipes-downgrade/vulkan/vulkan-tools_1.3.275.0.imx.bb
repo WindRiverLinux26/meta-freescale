@@ -6,6 +6,7 @@ SECTION = "libs"
 
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://LICENSE.txt;md5=3b83ef96387f14655fc854ddc3c6bd57"
+DEPENDS += "vulkan-headers vulkan-loader vulkan-volk"
 SRC_URI = "git://github.com/KhronosGroup/Vulkan-Tools.git;branch=main;protocol=https"
 SRCREV = "c86d42cf9eb620eeac377e3bff46ae342c5cd664"
 
@@ -13,13 +14,11 @@ inherit cmake features_check pkgconfig
 ANY_OF_DISTRO_FEATURES = "x11 wayland"
 REQUIRED_DISTRO_FEATURES = "vulkan"
 
-DEPENDS += "vulkan-headers vulkan-loader vulkan-volk"
-
 EXTRA_OECMAKE = "\
-                 -DBUILD_TESTS=OFF \
-                 -DBUILD_CUBE=OFF \
-                 -DPYTHON_EXECUTABLE=${HOSTTOOLS_DIR}/python3 \
-                 "
+    -DBUILD_TESTS=OFF \
+    -DBUILD_CUBE=OFF \
+    -DPYTHON_EXECUTABLE=${HOSTTOOLS_DIR}/python3 \
+"
 
 # must choose x11 or wayland or both
 PACKAGECONFIG ??= "${@bb.utils.filter('DISTRO_FEATURES', 'wayland x11', d)}"

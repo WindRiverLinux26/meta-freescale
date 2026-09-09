@@ -4,7 +4,7 @@ require qemu-qoriq.inc
 
 COMPATIBLE_MACHINE = "(qoriq)"
 
-DEPENDS = "glib-2.0 zlib pixman bison-native"
+DEPENDS += "bison-native glib-2.0 pixman zlib"
 
 LIC_FILES_CHKSUM = "file://COPYING;md5=441c28d2cf86e15a37fa47e15a72fbac \
                     file://COPYING.LIB;endline=24;md5=8c5efda6cf1e1b03dcfd0e6c0d271c7f"
@@ -30,18 +30,13 @@ python() {
 RDEPENDS:${PN}:class-target += "bash"
 
 EXTRA_OECONF:append:class-target = " --target-list=${@get_qemu_target_list(d)}"
-EXTRA_OECONF:append:class-target:mipsarcho32 = "${@bb.utils.contains('BBEXTENDCURR', 'multilib', ' --disable-capstone', '', d)}"
-EXTRA_OECONF:append:class-nativesdk = " --target-list=${@get_qemu_target_list(d)}"
-
-do_install:append:class-nativesdk() {
-     ${@bb.utils.contains('PACKAGECONFIG', 'gtk+', 'make_qemu_wrapper', '', d)}
-}
+EXTRA_OECONF:append:class-target:mipsarcho32 = " ${@bb.utils.contains('BBEXTENDCURR', 'multilib', '--disable-capstone', '', d)}"
 
 do_install_ptest() {
-        cp -rL ${B}/tests ${D}${PTEST_PATH}
+        cp --no-preserve=ownership -rL ${B}/tests ${D}${PTEST_PATH}
         find ${D}${PTEST_PATH}/tests -type f -name "*.[Sshcod]" | xargs -i rm -rf {}
 
-        cp ${S}/tests/Makefile.include ${D}${PTEST_PATH}/tests
+        install -m 0644 ${S}/tests/Makefile.include ${D}${PTEST_PATH}/tests
         # Don't check the file genreated by configure
         sed -i -e '/wildcard config-host.mak/d' \
                -e '$ {/endif/d}' ${D}${PTEST_PATH}/tests/Makefile.include
@@ -49,11 +44,10 @@ do_install_ptest() {
             ${D}/${PTEST_PATH}/tests/qemu-iotests/common.env
 }
 
-PACKAGECONFIG ??= " \
+PACKAGECONFIG ??= "\
     fdt sdl kvm aio libusb vhost numa \
     ${@bb.utils.filter('DISTRO_FEATURES', 'alsa xen', d)} \
 "
-PACKAGECONFIG:class-nativesdk ??= "fdt sdl kvm"
 
 PACKAGECONFIG[xkbcommon] = ",,"
 PACKAGECONFIG[libudev] = ",,"

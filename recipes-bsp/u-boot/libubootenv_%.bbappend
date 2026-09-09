@@ -35,9 +35,13 @@ def fixup_uboot_config_dependency(d):
        d.setVar("UBOOT_CONFIG", ubootconfig)
        d.setVar("UBOOT_MACHINE", ubootmachine)
 
+# Event handler registered unconditionally, but its body returns immediately
+# unless IMX_DEFAULT_BOOTLOADER is set. Measured inert on qemuarm64.
+# nooelint: oelint.vars.noncoreoverride
 python fixup_uboot_config_dependency_handler() {
     fixup_uboot_config_dependency(d)
 }
+fixup_uboot_config_dependency_handler[doc] = "Borrow UBOOT_MACHINE and UBOOT_CONFIG from IMX_DEFAULT_BOOTLOADER so libubootenv passes the uboot-config sanity check"
 
 fixup_uboot_config_dependency_handler[eventmask] = "bb.event.RecipePreFinalise"
 addhandler fixup_uboot_config_dependency_handler

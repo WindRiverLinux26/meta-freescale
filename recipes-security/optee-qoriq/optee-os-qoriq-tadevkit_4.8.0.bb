@@ -13,12 +13,14 @@ do_install() {
     #install TA devkit
     install -d ${D}${includedir}/optee/export-user_ta/
     for f in ${B}/export-ta_${OPTEE_ARCH}/* ; do
-        cp -aR $f ${D}${includedir}/optee/export-user_ta/
+        cp -aR --no-preserve=ownership $f ${D}${includedir}/optee/export-user_ta/
     done
 }
 
 do_deploy() {
-	echo "Do not inherit do_deploy from optee-os."
+    echo "Do not inherit do_deploy from optee-os."
 }
 
+# The TA devkit ships only its headers under ${includedir}/optee, packed explicitly.
+# nooelint: oelint.var.filesoverride
 FILES:${PN} = "${includedir}/optee/"

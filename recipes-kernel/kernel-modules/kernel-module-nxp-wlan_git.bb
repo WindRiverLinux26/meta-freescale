@@ -1,21 +1,26 @@
 SUMMARY = "NXP Wi-Fi driver for module 88w8801/8987/8997/9098 IW416/610/612"
+DESCRIPTION = "Kernel driver for NXP 88W8801/8987/8997/9098 and IW416/610/612 Wi-Fi modules."
+HOMEPAGE = "https://github.com/nxp-imx/mwifiex"
+SECTION = "kernel"
 LICENSE = "GPL-2.0-only"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=ab04ac0f249af12befccb94447c08b77"
 
 PROVIDES += "kernel-module-nxp89xx"
+
+SRC_URI = "\
+    ${MRVL_SRC};branch=${SRCBRANCH} \
+    file://0001-mlinux-moal_main-fix-device-wakeup-capability.patch \
+"
+MRVL_SRC ?= "git://github.com/nxp-imx/mwifiex.git;protocol=https"
+SRCBRANCH = "lf-6.18.2_1.0.0"
+SRCREV = "a5fe4e194bf99315e349d81d77d6dfacec70757a"
+
 RREPLACES:${PN} = "kernel-module-nxp89xx"
 RPROVIDES:${PN} = "kernel-module-nxp89xx"
 RCONFLICTS:${PN} = "kernel-module-nxp89xx"
 
 KERNEL_MODULE_PROBECONF += "moal"
 module_conf_moal = "options moal mod_para=nxp/wifi_mod_para.conf"
-
-SRC_URI = " \
-    ${MRVL_SRC};branch=${SRCBRANCH} \
-"
-MRVL_SRC ?= "git://github.com/nxp-imx/mwifiex.git;protocol=https"
-SRCBRANCH = "lf-6.18.2_1.0.0"
-SRCREV = "a5fe4e194bf99315e349d81d77d6dfacec70757a"
 
 inherit module
 

@@ -3,9 +3,11 @@
 # Copyright 2018 (C) O.S. Systems Software LTDA.
 # Released under the MIT license (see COPYING.MIT for the terms)
 
+SUMMARY = "i.MX multimedia codec libraries"
 DESCRIPTION = "Freescale Multimedia codec libs"
-LICENSE = "Proprietary"
+HOMEPAGE = "https://www.nxp.com/"
 SECTION = "multimedia"
+LICENSE = "Proprietary"
 LIC_FILES_CHKSUM = "file://COPYING;md5=a93b654673e1bc8398ed1f30e0813359"
 
 # Backward compatibility
@@ -21,8 +23,8 @@ S = "${UNPACKDIR}/${BPN}-${PV}-${IMX_SRCREV_ABBREV}"
 
 PACKAGECONFIG ??= "${PACKAGECONFIG_VPU}"
 # Support Chips&Media VPU only
-PACKAGECONFIG_VPU               = ""
-PACKAGECONFIG_VPU:mx6q-nxp-bsp  = "vpu"
+PACKAGECONFIG_VPU = ""
+PACKAGECONFIG_VPU:mx6q-nxp-bsp = "vpu"
 PACKAGECONFIG_VPU:mx6dl-nxp-bsp = "vpu"
 PACKAGECONFIG[vpu] = "--enable-vpu,--disable-vpu,virtual/imxvpu"
 
@@ -58,6 +60,7 @@ python __set_insane_skip() {
         else:
             d.setVar("INSANE_SKIP:%s" % p, "ldflags textrel")
 }
+__set_insane_skip[doc] = "Set DEBIAN_NOAUTONAME and INSANE_SKIP for the prebuilt codec plugin packages."
 
 do_package_qa[prefuncs] += "__set_insane_skip"
 
@@ -80,6 +83,7 @@ python __split_libfslcodec_plugins() {
             d.setVar('RPROVIDES:%s' % pkg, ' libfslcodec')
             d.setVar('RCONFLICTS:%s' % pkg, ' libfslcodec')
 }
+__split_libfslcodec_plugins[doc] = "Split the codec plugin .so files into per-codec packages."
 
 python __set_metapkg_rdepends() {
     # Allow addition of all codecs in a image; useful specially for
@@ -89,8 +93,11 @@ python __set_metapkg_rdepends() {
                         codec_pkgs)
     d.appendVar('RDEPENDS:imx-codec-meta', ' ' + ' '.join(codec_pkgs))
 }
+__set_metapkg_rdepends[doc] = "Make the -meta package RDEPEND on all split codec packages."
 
 PACKAGESPLITFUNCS =+ "__split_libfslcodec_plugins __set_metapkg_rdepends"
+
+PACKAGE_ARCH = "${MACHINE_SOCARCH}"
 
 # We need to ensure we don't have '-src' package overrided
 PACKAGE_DEBUG_SPLIT_STYLE = 'debug-without-src'
@@ -104,7 +111,9 @@ PACKAGES += "${PN}-meta ${PN}-test-bin ${PN}-test-source"
 ALLOW_EMPTY:${PN} = "1"
 ALLOW_EMPTY:${PN}-meta = "1"
 
-# Ensure we get warnings if we miss something
+# Reset PN's default FILES to empty so any unpackaged file is flagged as a
+# warning instead of silently landing in the main package.
+# nooelint: oelint.var.filesoverride
 FILES:${PN} = ""
 
 FILES:${PN}-dev += "${libdir}/imx-mm/*/*${SOLIBSDEV} \
@@ -120,5 +129,4 @@ FILES:${PN}-oggvorbis += "${libdir}/imx-mm/audio-codec/wrap/lib_vorbisd_wrap_arm
 FILES:${PN}-nb += "${libdir}/imx-mm/audio-codec/wrap/lib_nbamrd_wrap_arm*_elinux.so.*"
 FILES:${PN}-wb += "${libdir}/imx-mm/audio-codec/wrap/lib_wbamrd_wrap_arm*_elinux.so.*"
 
-PACKAGE_ARCH = "${MACHINE_SOCARCH}"
 COMPATIBLE_MACHINE = "(imx-nxp-bsp)"

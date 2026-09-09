@@ -1,11 +1,16 @@
-DESCRIPTION = "PKTGEN DPDK"
+SUMMARY = "Traffic generator powered by DPDK"
+DESCRIPTION = "Pktgen is a high-performance software traffic generator built on \
+               the DPDK fast packet processing framework, used to send and \
+               receive test traffic at line rate for network benchmarking."
+HOMEPAGE = "https://git.dpdk.org/apps/pktgen-dpdk/"
+SECTION = "console/network"
 LICENSE = "BSD"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=0245ceedaef59ae0129500b0ce1e8a45"
 
-DEPENDS += "libpcap dpdk lua lua-native"
+DEPENDS += "dpdk libpcap lua lua-native"
 
 SRC_URI = "git://dpdk.org/git/apps/pktgen-dpdk;protocol=https;nobranch=1 \
-    file://fix-gcc11-mismatched-dealloc-error.patch \
+           file://fix-gcc11-mismatched-dealloc-error.patch \
 "
 SRCREV = "3a09aa916597fb9a97ee8eec50044cbdb9c4abde"
 
@@ -23,11 +28,14 @@ do_configure:prepend() {
 }
 
 do_install() {
-	install -d ${D}${bindir}/
-	install -m 0755 app/pktgen ${D}${bindir}/
-        install -m 0644 ${S}/Pktgen.lua ${D}${bindir}/
+    install -d ${D}${bindir}/
+    install -m 0755 app/pktgen ${D}${bindir}/
+    install -m 0644 ${S}/Pktgen.lua ${D}${bindir}/
 }
 
+# DPDK's meson build links the app without propagating the distro LDFLAGS,
+# so the ldflags QA check is skipped for this package.
+# nooelint: oelint.vars.insaneskip
 INSANE_SKIP:${PN} = "ldflags"
 INHIBIT_PACKAGE_STRIP = "1"
 PACKAGE_ARCH = "${MACHINE_ARCH}"

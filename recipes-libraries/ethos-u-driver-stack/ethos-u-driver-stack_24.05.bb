@@ -1,17 +1,22 @@
 SUMMARY = "The Linux driver stack for Arm(R) Ethos(TM)-U NPU"
 DESCRIPTION = "The Linux driver stack for Arm(R) Ethos(TM)-U provides \
-an example of how a rich operating system like Linux can dispatch \
-inferences to an Arm Cortex(R)-M subsystem, consisting of an Arm \
-Cortex-M of choice and an Arm Ethos-U NPU."
+               an example of how a rich operating system like Linux can dispatch \
+               inferences to an Arm Cortex(R)-M subsystem, consisting of an Arm \
+               Cortex-M of choice and an Arm Ethos-U NPU."
+HOMEPAGE = "https://github.com/nxp-imx/ethos-u-driver-stack-imx"
+SECTION = "libs"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://LICENSE.txt;md5=e3fc50a88d0a364313df4b21ef20c29e"
 
 DEPENDS = "flatbuffers python3-pybind11 python3-pybind11-native"
 
-SRC_URI = "${ETHOS_U_SRC};branch=${SRCBRANCH}"
+SRC_URI = "${ETHOS_U_SRC};branch=${SRCBRANCH} \
+           file://0001-ethosu.hpp-Fix-gcc15-build-issues.patch \
+"
+
 ETHOS_U_SRC ?= "git://github.com/nxp-imx/ethos-u-driver-stack-imx.git;protocol=https"
-SRCBRANCH = "lf-6.12.3_1.0.0"
-SRCREV = "a80c51d77c91f1a8266afc5d8056fb981de4b504"
+SRCBRANCH = "lf-6.18.2_1.0.0"
+SRCREV = "94658d758ef1116e574aa7cf16f96c9546fe932e"
 
 inherit cmake setuptools3
 
@@ -21,11 +26,16 @@ do_configure() {
     cmake_do_configure
 }
 
+# The cmake_do_* and setuptools3_do_* helpers are all shell functions, so
+# these tasks are shell and must not carry a python prefix.
+# nooelint: oelint.task.pythonprefix
 do_compile () {
     cmake_do_compile
     setuptools3_do_compile
 }
 
+# Shell task for the same reason as do_compile above.
+# nooelint: oelint.task.pythonprefix
 do_install () {
     cmake_do_install
     setuptools3_do_install

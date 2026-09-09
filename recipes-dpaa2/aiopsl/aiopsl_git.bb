@@ -1,4 +1,6 @@
+SUMMARY = "DPAA2 AIOP service layer"
 DESCRIPTION = "DPAA2 Accelerated I/O Processing service layer"
+HOMEPAGE = "https://github.com/nxp-qoriq/aiopsl"
 SECTION = "dpaa2"
 LICENSE = "BSD-3-Clause"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=faf479bdc4702d8033049f97e153f876"
@@ -17,12 +19,15 @@ DEMOS_PATH:ls1088a = "LS1088A"
 do_install () {
     install -d ${D}/usr/aiop/bin
     install -d ${D}/usr/aiop/
-    cp -rf ${S}/demos/images/*  ${D}/usr/aiop/bin
-    cp -rf ${S}/misc/setup/scripts ${D}/usr/aiop/
-    cp -rf ${S}/misc/setup/traffic_files/ ${D}/usr/aiop/
+    cp --no-preserve=ownership -rf ${S}/demos/images/*  ${D}/usr/aiop/bin
+    cp --no-preserve=ownership -rf ${S}/misc/setup/scripts ${D}/usr/aiop/
+    cp --no-preserve=ownership -rf ${S}/misc/setup/traffic_files/ ${D}/usr/aiop/
 }
 
 FILES:${PN} += "/usr/aiop/*"
+# The package ships AIOP accelerator-core firmware, whose ELF machine type is not
+# the host BSP arch, so the arch QA check flags it by design.
+# nooelint: oelint.vars.insaneskip
 INSANE_SKIP:${PN} += "arch"
 INHIBIT_PACKAGE_STRIP = "1"
 INHIBIT_PACKAGE_DEBUG_SPLIT = "1"

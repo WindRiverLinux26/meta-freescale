@@ -1,5 +1,9 @@
-do_install:append () {
-    install -d ${D}/usr/include/tc 
-    cp -a ${B}/include  ${D}/usr/include
-    cp -a ${B}/tc/*.h    ${D}/usr/include/tc
+do_install:append:qoriq-generic-bsp () {
+
+    # Add tc folder headers
+    install -d ${D}${includedir}/tc
+    install -m 0644 ${B}/tc/*.h ${D}${includedir}/tc
+
+    # Add include folder headers at /usr/include/include
+    cp -R --no-preserve=ownership ${B}/include ${D}${includedir}
 }

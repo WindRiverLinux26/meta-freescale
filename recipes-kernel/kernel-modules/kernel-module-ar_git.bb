@@ -1,11 +1,14 @@
 SUMMARY = "Auto Response Control Module"
+DESCRIPTION = "Kernel module providing QorIQ SEC auto-response control."
+HOMEPAGE = "https://github.com/nxp-qoriq-yocto-sdk/auto-resp"
+SECTION = "kernel"
 LICENSE = "GPL-2.0-only & BSD"
 LIC_FILES_CHKSUM = "file://COPYING;md5=b5881ecf398da8a03a3f4c501e29d287"
 
 inherit module
 
 SRC_URI = "git://github.com/nxp-qoriq-yocto-sdk/auto-resp;branch=nxp/sdk-v2.0.x;protocol=https"
-SRCREV =  "9a74743167dcfcfbca5056eedbff9a52337c9712"
+SRCREV = "9a74743167dcfcfbca5056eedbff9a52337c9712"
 
 EXTRA_OEMAKE = "CROSS_COMPILE=${TARGET_PREFIX} SYSROOT=${STAGING_DIR_TARGET}"
 export KERNEL_PATH
@@ -17,13 +20,17 @@ do_compile:prepend() {
 }
 
 do_install(){
-	install -d ${D}${nonarch_base_libdir}/modules/${KERNEL_VERSION}
-	install -d ${D}${bindir}
-	install -m 644 ${B}/bin/ar.ko ${D}${nonarch_base_libdir}/modules/${KERNEL_VERSION}/
-	cp -f ${S}/bin/ar_* ${D}${bindir}/ 
+    install -d ${D}${nonarch_base_libdir}/modules/${KERNEL_VERSION}
+    install -d ${D}${bindir}
+    install -m 644 ${B}/bin/ar.ko ${D}${nonarch_base_libdir}/modules/${KERNEL_VERSION}/
+    install -m 0755 ${S}/bin/ar_*_tool ${D}${bindir}/
+    install -m 0644 ${S}/bin/ar_*_cfg ${D}${bindir}/
 }
 
 FILES:${PN} += "${bindir}/"
+# The userspace tools are linked by the module Makefile via CROSS_COMPILE and do
+# not consume the OE LDFLAGS, so the ldflags QA check cannot pass here.
+# nooelint: oelint.vars.insaneskip
 INSANE_SKIP:${PN} = "ldflags"
 COMPATIBLE_MACHINE = "(t1040|t1042)"
 

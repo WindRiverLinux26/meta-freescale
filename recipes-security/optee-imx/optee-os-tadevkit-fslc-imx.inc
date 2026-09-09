@@ -13,15 +13,20 @@ do_install() {
     #install TA devkit
     install -d ${D}${includedir}/optee/export-user_ta/
     for f in ${B}/export-ta_${OPTEE_ARCH}/* ; do
-        cp -aR $f ${D}${includedir}/optee/export-user_ta/
+        cp -aR --no-preserve=ownership $f ${D}${includedir}/optee/export-user_ta/
     done
 }
 
 do_deploy() {
-	echo "Do not inherit do_deploy from optee-os."
+    echo "Do not inherit do_deploy from optee-os."
 }
 
+# The TA devkit ships only its headers under ${includedir}/optee, packed
+# explicitly.
+# nooelint: oelint.var.filesoverride
 FILES:${PN} = "${includedir}/optee/"
 
-# Build paths are currently embedded
+# The TA devkit -dev package embeds build paths in its generated files, so the
+# buildpaths QA check cannot pass for it.
+# nooelint: oelint.vars.insaneskip
 INSANE_SKIP:${PN}-dev += "buildpaths"

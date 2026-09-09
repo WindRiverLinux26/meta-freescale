@@ -2,14 +2,15 @@
 # Released under the MIT License (see COPYING.MIT for the terms)
 
 SUMMARY = "Universal Update Utility - Binaries"
-DESCRIPTION = "Image deploy tool for i.MX chips"
+DESCRIPTION = "Prebuilt Universal Update Utility (uuu) binaries used to download and deploy bootloader and OS images to NXP i.MX chips over USB."
 HOMEPAGE = "https://github.com/nxp-imx/mfgtools"
+SECTION = "console/utils"
 
 LICENSE = "BSD-3-Clause & LGPL-2.1-or-later"
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/BSD-3-Clause;md5=550794465ba0ec5312d6919e203a55f9 \
                     file://${COMMON_LICENSE_DIR}/LGPL-2.1-or-later;md5=2a4f4fd2128ea2f65047ee63fbca9f68"
 
-SRC_URI = " \
+SRC_URI = "\
     https://github.com/nxp-imx/mfgtools/releases/download/uuu_${PV}/uuu;downloadfilename=uuu-${PV};name=Linux \
     https://github.com/nxp-imx/mfgtools/releases/download/uuu_${PV}/uuu_mac_x86;downloadfilename=uuu-${PV}_mac_x86;name=Mac_x86 \
     https://github.com/nxp-imx/mfgtools/releases/download/uuu_${PV}/uuu_mac_arm;downloadfilename=uuu-${PV}_mac_arm;name=Mac_arm \
@@ -30,7 +31,13 @@ do_install() {
     install -D -m 0644 ${UNPACKDIR}/uuu-${PV}.exe       ${D}${libdir}/uuu/uuu.exe
 }
 
-# HACK! We are not aiming to run those binaries during the build but copy then for MFGTOOL bundle.
+# These prebuilt binaries are bundled for the MFGTOOL package, not run on target,
+# so their foreign arch and unresolved file-rdeps are expected and the arch and
+# file-rdeps QA checks do not apply.
+# nooelint: oelint.vars.insaneskip
 INSANE_SKIP:${PN} += "arch file-rdeps"
+# Prebuilt uuu host binaries are staged under ${libdir}/uuu for the MFGTOOL
+# bundle only; the main package holds exactly that directory.
+# nooelint: oelint.var.filesoverride
 FILES:${PN} = "${libdir}/uuu"
 SYSROOT_DIRS = "${libdir}/uuu"

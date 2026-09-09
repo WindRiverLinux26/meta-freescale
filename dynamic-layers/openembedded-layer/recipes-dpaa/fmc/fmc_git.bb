@@ -1,20 +1,21 @@
 SUMMARY = "Frame Manager Configuration tool"
+DESCRIPTION = "Tool that compiles the DPAA Frame Manager configuration and policy \
+               XML files for NXP QorIQ SoCs."
+HOMEPAGE = "https://github.com/nxp-qoriq/fmc"
+SECTION = "base"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=a504ab5a8ff235e67c7301214749346c"
 
 PR = "r2"
 
-DEPENDS = "libxml2 fmlib tclap"
+DEPENDS = "fmlib libxml2 tclap"
 
 SRC_URI = "git://github.com/nxp-qoriq/fmc;protocol=https;nobranch=1"
 SRCREV = "5b9f4b16a864e9dfa58cdcc860be278a7f66ac18"
 
 EXTRA_OEMAKE = 'FMD_USPACE_HEADER_PATH="${STAGING_INCDIR}/fmd" \
-    FMD_USPACE_LIB_PATH="${STAGING_LIBDIR}" LIBXML2_HEADER_PATH="${STAGING_INCDIR}/libxml2" \
-    TCLAP_HEADER_PATH="${STAGING_INCDIR}" '
-EXTRA_OEMAKE:class-native = 'FMCHOSTMODE=1 FMD_USPACE_HEADER_PATH="${STAGING_INCDIR}/fmd" \
-    FMD_USPACE_LIB_PATH="${STAGING_LIBDIR}" LIBXML2_HEADER_PATH="${STAGING_INCDIR}/libxml2" \
-    TCLAP_HEADER_PATH="${STAGING_INCDIR}" '
+               FMD_USPACE_LIB_PATH="${STAGING_LIBDIR}" LIBXML2_HEADER_PATH="${STAGING_INCDIR}/libxml2" \
+               TCLAP_HEADER_PATH="${STAGING_INCDIR}" '
 
 EXTRA_OEMAKE_PLATFORM ?= ""
 EXTRA_OEMAKE_PLATFORM:ls1043a = "ls1043"
@@ -26,7 +27,6 @@ EXTRA_OEMAKE_PLATFORM:p2041 = "p4080ds"
 EXTRA_OEMAKE_PLATFORM:p3041 = "p4080ds"
 EXTRA_OEMAKE_PLATFORM:p4080 = "p4080ds"
 EXTRA_OEMAKE_PLATFORM:p5040 = "p4080ds"
-
 
 do_compile () {
     oe_runmake MACHINE=${EXTRA_OEMAKE_PLATFORM} -C source

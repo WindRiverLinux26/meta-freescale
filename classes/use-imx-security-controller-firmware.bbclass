@@ -16,16 +16,19 @@
 # This behavior ensures that derivatives which requires SECO Firmware to be
 # present in the image file have it properly defined.
 
-SECO_FIRMWARE_NAME                    ?= ""
-SECO_FIRMWARE_NAME:mx8qm-generic-bsp  ?= "mx8qm${IMX_SOC_REV_LOWER}-ahab-container.img"
+SECO_FIRMWARE_NAME ?= ""
+SECO_FIRMWARE_NAME:mx8qm-generic-bsp ?= "mx8qm${IMX_SOC_REV_LOWER}-ahab-container.img"
 SECO_FIRMWARE_NAME:mx8qxp-generic-bsp ?= "mx8qx${IMX_SOC_REV_LOWER}-ahab-container.img"
-SECO_FIRMWARE_NAME:mx8dx-generic-bsp  ?= "mx8qx${IMX_SOC_REV_LOWER}-ahab-container.img"
+SECO_FIRMWARE_NAME:mx8dx-generic-bsp ?= "mx8qx${IMX_SOC_REV_LOWER}-ahab-container.img"
 SECO_FIRMWARE_NAME:mx8dxl-generic-bsp ?= "mx8dxl${IMX_SOC_REV_LOWER}-ahab-container.img"
 SECO_FIRMWARE_NAME:mx8ulp-generic-bsp ?= "mx8ulp${IMX_SOC_REV_LOWER}-ahab-container.img"
-SECO_FIRMWARE_NAME:mx91-generic-bsp   ?= "mx91${IMX_SOC_REV_LOWER}-ahab-container.img"
-SECO_FIRMWARE_NAME:mx93-generic-bsp   ?= "mx93${IMX_SOC_REV_LOWER}-ahab-container.img"
-SECO_FIRMWARE_NAME:mx95-generic-bsp   ?= "mx95${IMX_SOC_REV_LOWER}-ahab-container.img"
+SECO_FIRMWARE_NAME:mx91-generic-bsp ?= "mx91${IMX_SOC_REV_LOWER}-ahab-container.img"
+SECO_FIRMWARE_NAME:mx93-generic-bsp ?= "mx93${IMX_SOC_REV_LOWER}-ahab-container.img"
+SECO_FIRMWARE_NAME:mx95-generic-bsp ?= "mx95${IMX_SOC_REV_LOWER}-ahab-container.img"
 
+# Parse-time guard: SoCs that require a SECO firmware must fail parsing early
+# (SkipRecipe) when SECO_FIRMWARE_NAME is undefined, which needs anonymous python.
+# nooelint: oelint.task.noanonpython
 python () {
     if "mx8m-generic-bsp" in d.getVar('MACHINEOVERRIDES').split(":"):
         return # We need to allow the recipes to be parsed for this case

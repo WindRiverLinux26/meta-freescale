@@ -4,6 +4,7 @@
 SUMMARY = "OP-TEE Trusted OS"
 DESCRIPTION = "Open Portable Trusted Execution Environment - Trusted side of the TEE"
 HOMEPAGE = "https://www.op-tee.org/"
+SECTION = "base"
 
 LICENSE = "BSD-2-Clause"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=c1f21c4f72f372ef38a5a4aee55ec173"
@@ -13,15 +14,15 @@ require optee-fslc.inc
 
 CVE_PRODUCT = "linaro:op-tee op-tee:op-tee_os"
 
-DEPENDS = "python3-pyelftools-native python3-cryptography-native"
+DEPENDS:append = " python3-cryptography-native python3-pyelftools-native"
 
-DEPENDS:append:toolchain-clang = " lld-native compiler-rt"
+DEPENDS:append:toolchain-clang = " compiler-rt lld-native"
 
 SRC_URI = "git://github.com/OP-TEE/optee_os.git;branch=master;protocol=https"
 
 B = "${WORKDIR}/build"
 
-EXTRA_OEMAKE += " \
+EXTRA_OEMAKE += "\
     PLATFORM=${OPTEEMACHINE} \
     CFG_${OPTEE_CORE}_core=y \
     CROSS_COMPILE_core=${HOST_PREFIX} \
@@ -30,11 +31,11 @@ EXTRA_OEMAKE += " \
     ta-targets=ta_${OPTEE_ARCH} \
     O=${B} \
 "
-EXTRA_OEMAKE += " HOST_PREFIX=${HOST_PREFIX}"
-EXTRA_OEMAKE += " CROSS_COMPILE64=${HOST_PREFIX}"
+EXTRA_OEMAKE += "HOST_PREFIX=${HOST_PREFIX}"
+EXTRA_OEMAKE += "CROSS_COMPILE64=${HOST_PREFIX}"
 
 # Enable BTI in optee
-EXTRA_OEMAKE += "${@bb.utils.contains('MACHINE_FEATURES', 'arm-branch-protection', ' CFG_TA_BTI=1 CFG_CORE_PAUTH=y CFG_TA_PAUTH=y', '', d)}"
+EXTRA_OEMAKE += "${@bb.utils.contains('MACHINE_FEATURES', 'arm-branch-protection', 'CFG_TA_BTI=1 CFG_CORE_PAUTH=y CFG_TA_PAUTH=y', '', d)}"
 
 LDFLAGS[unexport] = "1"
 CPPFLAGS[unexport] = "1"
@@ -71,11 +72,16 @@ addtask deploy before do_build after do_install
 SYSROOT_DIRS += "${nonarch_base_libdir}/firmware"
 
 PACKAGES += "${PN}-ta"
+# OP-TEE installs only its firmware image tree; the main package holds it explicitly.
+# nooelint: oelint.var.filesoverride
 FILES:${PN} = "${nonarch_base_libdir}/firmware/"
-FILES:${PN}-ta = "${nonarch_base_libdir}/optee_armtz/*"
+FILES:${PN}-ta += "${nonarch_base_libdir}/optee_armtz/*"
 
-
-# note: "textrel" is not triggered on all archs
+# The OP-TEE OS image contains text relocations by design (not triggered on all
+# archs) and the -dev package ships the TA devkit static libraries, so the textrel
+# and staticdev QA checks do not apply.
+# nooelint: oelint.vars.insaneskip
 INSANE_SKIP:${PN} = "textrel"
+# nooelint: oelint.vars.insaneskip
 INSANE_SKIP:${PN}-dev = "staticdev"
 INHIBIT_PACKAGE_STRIP = "1"

@@ -1,12 +1,15 @@
 # Copyright 2019-2022 NXP
 
-DESCRIPTION = "i.MX VC8000E Encoder library"
+SUMMARY = "i.MX VC8000E encoder library"
+DESCRIPTION = "Hantro VC8000E video encoder library for i.MX SoCs."
+HOMEPAGE = "https://www.nxp.com/"
+SECTION = "multimedia"
 LICENSE = "Proprietary"
 LIC_FILES_CHKSUM = "file://COPYING;md5=bc649096ad3928ec06a8713b8d787eac"
 
 inherit fsl-eula-unpack
 
-SRC_URI = " ${FSL_MIRROR}/${BP}-${IMX_SRCREV_ABBREV}.bin;fsl-eula=true"
+SRC_URI = "${FSL_MIRROR}/${BP}-${IMX_SRCREV_ABBREV}.bin;fsl-eula=true"
 IMX_SRCREV_ABBREV = "5e18a84"
 
 SRC_URI[sha256sum] = "04d2a9c5c75804a11a4500a0133dfc7d8e84f74254cee52c42075f5ecc229550"
@@ -29,8 +32,11 @@ do_install () {
     rm ${D}${D_SUBDIR}/${SCR}
 }
 
-FILES:${PN} = "/"
-
 PACKAGE_ARCH = "${MACHINE_SOCARCH}"
+
+# Prebuilt VPU firmware/libraries are installed under a fixed layout and the
+# whole tree is packed into the main package.
+# nooelint: oelint.var.filesoverride
+FILES:${PN} = "/"
 
 COMPATIBLE_MACHINE = "(mx8mp-nxp-bsp)"

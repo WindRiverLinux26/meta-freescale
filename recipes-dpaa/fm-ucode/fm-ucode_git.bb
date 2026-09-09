@@ -1,4 +1,6 @@
+SUMMARY = "Fman microcode"
 DESCRIPTION = "Fman microcode binary"
+HOMEPAGE = "https://github.com/NXP/qoriq-fm-ucode"
 SECTION = "fm-ucode"
 LICENSE = "NXP-Binary-EULA"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=12e248d404ce1ea8bed0148fcf127e69"
@@ -32,10 +34,10 @@ do_deploy () {
 }
 addtask deploy before do_build after do_install
 
+PACKAGE_ARCH = "${MACHINE_SOCARCH}"
 PACKAGES += "${PN}-image"
 FILES:${PN}-image += "/boot"
 ALLOW_EMPTY:${PN} = "1"
 
 COMPATIBLE_MACHINE = "(e500mc|e5500|e5500-64b|e6500|e6500-64b|fsl-lsch2)"
-PACKAGE_ARCH = "${MACHINE_SOCARCH}"
 

@@ -1,10 +1,12 @@
 require secure-obj.inc
 
+SUMMARY = "Secure object securekeydev kernel module"
+SECTION = "kernel/modules"
 LIC_FILES_CHKSUM = "file://../LICENSE;md5=751419260aa954499f7abaabaa882bbe"
 
 DEPENDS += "virtual/kernel"
 
-inherit module 
+inherit module
 
 S = "${UNPACKDIR}/${BP}/securekeydev"
 

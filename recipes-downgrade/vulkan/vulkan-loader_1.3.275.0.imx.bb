@@ -1,14 +1,17 @@
 SUMMARY = "3D graphics and compute API common loader"
 DESCRIPTION = "Vulkan is a new generation graphics and compute API \
-that provides efficient access to modern GPUs. These packages \
-provide only the common vendor-agnostic library loader, headers and \
-the vulkaninfo utility."
+               that provides efficient access to modern GPUs. These packages \
+               provide only the common vendor-agnostic library loader, headers and \
+               the vulkaninfo utility."
 HOMEPAGE = "https://www.khronos.org/vulkan/"
 BUGTRACKER = "https://github.com/KhronosGroup/Vulkan-Loader"
 SECTION = "libs"
 
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://LICENSE.txt;md5=7dbefed23242760aa3475ee42801c5ac"
+
+DEPENDS += "vulkan-headers"
+
 SRC_URI = "git://github.com/KhronosGroup/Vulkan-Loader.git;branch=vulkan-sdk-1.3.275;protocol=https"
 SRCREV = "00893b9a03e526aec2c5bf487521d16dfa435229"
 
@@ -16,15 +19,13 @@ REQUIRED_DISTRO_FEATURES = "vulkan"
 
 inherit cmake features_check pkgconfig
 
-DEPENDS += "vulkan-headers"
-
 EXTRA_OECMAKE = "\
-                 -DBUILD_TESTS=OFF \
-                 -DPYTHON_EXECUTABLE=${HOSTTOOLS_DIR}/python3 \
-                 -DASSEMBLER_WORKS=FALSE \
-                 -DVulkanHeaders_INCLUDE_DIR=${STAGING_INCDIR} \
-                 -DVulkanRegistry_DIR=${RECIPE_SYSROOT}/${datadir} \
-                 "
+    -DBUILD_TESTS=OFF \
+    -DPYTHON_EXECUTABLE=${HOSTTOOLS_DIR}/python3 \
+    -DASSEMBLER_WORKS=FALSE \
+    -DVulkanHeaders_INCLUDE_DIR=${STAGING_INCDIR} \
+    -DVulkanRegistry_DIR=${RECIPE_SYSROOT}/${datadir} \
+"
 
 PACKAGECONFIG ??= "${@bb.utils.filter('DISTRO_FEATURES', 'wayland x11', d)}"
 

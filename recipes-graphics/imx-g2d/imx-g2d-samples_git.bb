@@ -1,27 +1,29 @@
 SUMMARY = "i.MX G2D Samples"
 DESCRIPTION = "Set of sample applications for i.MX G2D"
+HOMEPAGE = "https://github.com/nxp-imx/g2d-samples"
+SECTION = "graphics"
 LICENSE = "BSD-3-Clause"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=0858ec9c7a80c4a2cf16e4f825a2cc91"
 
 DEPENDS = "cairo"
 
-PV = "2.4+git"
+PV = "2.5.0+git"
 
 SRC_URI = "${GPU_G2D_SAMPLES_SRC};branch=${SRCBRANCH}"
 GPU_G2D_SAMPLES_SRC ?= "git://github.com/nxp-imx/g2d-samples.git;protocol=https"
-SRCBRANCH = "imx_2.4"
-SRCREV = "7d12c50c07d73650b4c97906ce917aff429238f8"
+SRCBRANCH = "imx_2.5"
+SRCREV = "22ca65feb57702832fbaca7f7c9c8d691466e649"
 
 inherit pkgconfig
 
 PACKAGECONFIG ??= "${PACKAGECONFIG_IMPLEMENTATION}"
-PACKAGECONFIG_IMPLEMENTATION                   = ""
-PACKAGECONFIG_IMPLEMENTATION:imxgpu2d:imxdpu   = "dpu"
-PACKAGECONFIG_IMPLEMENTATION:mx95-nxp-bsp      = "dpu95"
-PACKAGECONFIG_IMPLEMENTATION:imxgpu2d          = "gpu-drm"
+PACKAGECONFIG_IMPLEMENTATION = ""
+PACKAGECONFIG_IMPLEMENTATION:imxgpu2d:imxdpu = "dpu"
+PACKAGECONFIG_IMPLEMENTATION:mx95-nxp-bsp = "dpu95"
+PACKAGECONFIG_IMPLEMENTATION:imxgpu2d = "gpu-drm"
 PACKAGECONFIG_IMPLEMENTATION:imxgpu2d:imxfbdev = "gpu-fbdev"
-PACKAGECONFIG_IMPLEMENTATION:mx93-nxp-bsp      = "pxp"
-PACKAGECONFIG_IMPLEMENTATION:mx943-nxp-bsp     = "pxp"
+PACKAGECONFIG_IMPLEMENTATION:mx93-nxp-bsp = "pxp"
+PACKAGECONFIG_IMPLEMENTATION:mx943-nxp-bsp = "pxp"
 
 PACKAGECONFIG[dpu] = " \
     BUILD_IMPLEMENTATION=dpu, \
@@ -59,7 +61,7 @@ PACKAGECONFIG[pxp] = " \
     , \
     dpu dpu95 gpu-drm gpu-fbdev"
 
-EXTRA_OEMAKE += " \
+EXTRA_OEMAKE += "\
     SDKTARGETSYSROOT=${STAGING_DIR_HOST} \
     ${PACKAGECONFIG_CONFARGS} \
 "
@@ -68,8 +70,8 @@ do_install() {
     oe_runmake install DESTDIR=${D}
 }
 
-FILES:${PN} += "/opt"
-
 PACKAGE_ARCH = "${MACHINE_SOCARCH}"
+
+FILES:${PN} += "/opt"
 
 COMPATIBLE_MACHINE = "(imxgpu2d|mx93-nxp-bsp|mx943-nxp-bsp|mx95-nxp-bsp)"

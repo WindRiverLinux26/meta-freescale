@@ -1,6 +1,8 @@
 # Copyright 2025 NXP
 
-DESCRIPTION = "NXP RetuneDSP Voice Seeker Libraries"
+SUMMARY = "NXP RetuneDSP Voice Seeker libraries"
+DESCRIPTION = "NXP RetuneDSP Voice Seeker far-field voice pickup libraries."
+HOMEPAGE = "https://github.com/nxp-imx/imx-voiceui"
 SECTION = "multimedia"
 LICENSE = "Proprietary"
 LIC_FILES_CHKSUM = "file://LICENSE.txt;md5=ca53281cc0caa7e320d4945a896fb837"
@@ -37,6 +39,8 @@ PACKAGE_ARCH = "${MACHINE_ARCH}"
 FILES:${PN} += "${libdir}/nxp-afe/* \
                 /unit_tests/* \
 "
+# Prebuilt versioned .so shipped with an unversioned symlink in the main package.
+# nooelint: oelint.vars.insaneskip
 INSANE_SKIP:${PN} += "dev-so"
 
 COMPATIBLE_MACHINE = "(mx8-nxp-bsp|mx9-nxp-bsp)"

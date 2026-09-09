@@ -1,5 +1,8 @@
 # Copyright 2021 NXP
-DESCRIPTION = "i.MX Hantro V4L2 Daemon"
+SUMMARY = "i.MX Hantro V4L2 daemon"
+DESCRIPTION = "V4L2 userspace daemon for the Hantro VPU on i.MX SoCs."
+HOMEPAGE = "https://www.nxp.com/"
+SECTION = "multimedia"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://LICENSE.txt;md5=cd8bc2a79509c22fc9c1782a151210b1"
 
@@ -17,11 +20,11 @@ PLATFORM:mx8mm-nxp-bsp = "IMX8MM"
 PLATFORM:mx8mq-nxp-bsp = "IMX8MQ"
 PLATFORM:mx8mp-nxp-bsp = "IMX8MP"
 
-EXTRA_OEMAKE = " \
-    CROSS_COMPILE="${HOST_PREFIX}" \
-    SDKTARGETSYSROOT="${STAGING_DIR_TARGET}" \
-    CTRLSW_HDRPATH="${STAGING_INCDIR}" \
-    PLATFORM="${PLATFORM}" \
+EXTRA_OEMAKE = "\
+    CROSS_COMPILE="${HOST_PREFIX}"\
+    SDKTARGETSYSROOT="${STAGING_DIR_TARGET}"\
+    CTRLSW_HDRPATH="${STAGING_INCDIR}"\
+    PLATFORM="${PLATFORM}"\
 "
 
 do_install () {

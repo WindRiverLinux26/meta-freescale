@@ -1,7 +1,9 @@
 # Copyright 2019, 2025 NXP
-DESCRIPTION = "NXP Asynchronous Sample Rate Converter"
-LICENSE = "Proprietary"
+SUMMARY = "i.MX asynchronous sample rate converter"
+DESCRIPTION = "NXP asynchronous sample rate converter (ASRC) library for the i.MX DSP-based audio processing pipeline."
+HOMEPAGE = "https://www.nxp.com/"
 SECTION = "multimedia"
+LICENSE = "Proprietary"
 LIC_FILES_CHKSUM = "file://COPYING;md5=a93b654673e1bc8398ed1f30e0813359"
 
 SRC_URI = "${FSL_MIRROR}/${BPN}-${PV}-${IMX_SRCREV_ABBREV}.bin;fsl-eula=true"
@@ -18,7 +20,7 @@ EXTRA_OECONF = "--enable-armv8 --libdir=${libdir} --bindir=/unit_tests"
 
 INHIBIT_PACKAGE_STRIP = "1"
 INHIBIT_SYSROOT_STRIP = "1"
-INHIBIT_PACKAGE_DEBUG_SPLIT  = "1"
+INHIBIT_PACKAGE_DEBUG_SPLIT = "1"
 
 FILES:${PN} += "/unit_tests ${datadir}/imx-mm"
 

@@ -1,10 +1,15 @@
 # Copyright 2020-2026 NXP
 
+SUMMARY = "i.MX ISP kernel module"
 DESCRIPTION = "Kernel loadable module for ISP"
+HOMEPAGE = "https://github.com/nxp-imx/isp-vvcam"
+SECTION = "kernel"
 LICENSE = "GPL-2.0-only"
 LIC_FILES_CHKSUM = "file://${S}/../LICENSE;md5=64381a6ea83b48c39fe524c85f65fb44"
 
-SRC_URI = "${ISP_KERNEL_SRC};branch=${SRCBRANCH}"
+SRC_URI = "${ISP_KERNEL_SRC};branch=${SRCBRANCH} \
+           file://0001-video-add-v4l2-fh-compat-for-pre-6.18-kernels.patch \
+"
 ISP_KERNEL_SRC ?= "git://github.com/nxp-imx/isp-vvcam.git;protocol=https"
 SRCBRANCH = "lf-6.18.y_1.0.0"
 SRCREV = "5484bc99a258562c3893808736dd67af22ac355e"
@@ -15,7 +20,7 @@ inherit module
 
 MODULES_MODULE_SYMVERS_LOCATION = "dwe"
 
-DEBUG_PREFIX_MAP:prepend = " \
+DEBUG_PREFIX_MAP:prepend = "\
     -fmacro-prefix-map=${UNPACKDIR}/${BP}/vvcam=/usr/src/debug/${PN}/${EXTENDPE}${PV}-${PR} \
     -fdebug-prefix-map=${UNPACKDIR}/${BP}/vvcam=/usr/src/debug/${PN}/${EXTENDPE}${PV}-${PR} "
 
